@@ -15,6 +15,7 @@ public class BenchmarkingExecutableClient {
         options.addOption("b", true, "Which Benchmark?");
         options.addOption("d", true, "Benchmark Duration (sec)?");
         options.addOption("i", true, "Benchmark Interval (μs)");
+        options.addOption("threadNum", true, "Number of client workers.");
         options.addOption("mainHostAddr", true, "Address of the main Apiary host to connect to.");
         options.addOption("mysqlAddr", true, "Address of the MySQL server.");
         options.addOption("postgresAddr", true, "Address of the Postgres server.");
@@ -98,6 +99,11 @@ public class BenchmarkingExecutableClient {
             }
         }
 
+        int threadNum = 32;
+        if (cmd.hasOption("threadNum")) {
+            threadNum = Integer.parseInt(cmd.getOptionValue("threadNum"));
+        }
+
     
         logger.info("Running TPCC benchmark using transaction manager {}.", transactionManager);
         int percentageNewOrder = 50;
@@ -106,6 +112,6 @@ public class BenchmarkingExecutableClient {
         }
         logger.info("TPCC benchmark neworder percentage: {}%", percentageNewOrder);
         logger.info("TPCC benchmark against postgres@{}, mysql@{}", postgresAddr, mysqlAddr);
-        TPCCBenchmark.benchmark(conf, transactionManager, mainHostAddr, interval, duration, percentageNewOrder, mysqlDelayLogFlush, skipLoading, skipBench);
+        TPCCBenchmark.benchmark(conf, transactionManager, threadNum, mainHostAddr, interval, duration, percentageNewOrder, mysqlDelayLogFlush, skipLoading, skipBench);
     }
 }

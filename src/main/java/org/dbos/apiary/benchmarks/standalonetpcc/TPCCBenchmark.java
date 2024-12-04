@@ -84,10 +84,10 @@ public class TPCCBenchmark {
         return ds;
     }
 
-    public static void benchmark(WorkloadConfiguration conf, String transactionManager, String mainHostAddr, Integer interval, Integer duration, int percentageNewOrder, boolean mysqlDelayLogFlush, boolean skipLoading, boolean skipBench) throws SQLException, InterruptedException {
+    public static void benchmark(WorkloadConfiguration conf, String transactionManager, int threadNum, String mainHostAddr, Integer interval, Integer duration, int percentageNewOrder, boolean mysqlDelayLogFlush, boolean skipLoading, boolean skipBench) throws SQLException, InterruptedException {
         if (!skipLoading) {
             TPCCLoaderXDST loader = new TPCCLoaderXDST(conf,
-            getPostgresDataSource(conf.getDBAddressPG(), XAConfig.postgresPort, conf.getDBName(), "jack", "Test@123"));
+            getPostgresDataSource(conf.getDBAddressPG(), XAConfig.postgresPort, conf.getDBName(), "postgres", "postgres"));
             List<LoaderThread> loaders = loader.createLoaderThreads();
             ThreadUtil.runNewPool(loaders, conf.getLoaderThreads());
         } else {
@@ -107,7 +107,7 @@ public class TPCCBenchmark {
 
         PostgresConnection pconn;
         try {
-            pconn = new PostgresConnection(conf.getDBAddressPG(), XAConfig.postgresPort, conf.getDBName(), "postgres", "dbos");
+            pconn = new PostgresConnection(conf.getDBAddressPG(), XAConfig.postgresPort, conf.getDBName(), "postgres", "postgres");
         } catch (Exception e) {
             logger.info("No MySQL/Postgres instance! {}", e.getMessage());
             return;
@@ -126,7 +126,7 @@ public class TPCCBenchmark {
 
         ThreadLocal<ApiaryWorkerClient> client = ThreadLocal.withInitial(() -> new ApiaryWorkerClient(mainHostAddr));
 
-        ExecutorService threadPool = Executors.newFixedThreadPool(threadPoolSize);
+        ExecutorService threadPool = Executors.newFixedThreadPool(threadNum);
         long startTime = System.currentTimeMillis();
         long endTime = startTime + (duration * 1000 + threadWarmupMs);
         AtomicBoolean warmed = new AtomicBoolean(false);
