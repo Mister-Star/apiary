@@ -87,7 +87,7 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>make-assembly</id>
+                        <id>TPCCServer-assembly</id>
                         <phase>package</phase>
                         <goals>
                             <goal>single</goal>
@@ -102,7 +102,7 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>make-assembly</id>
+                        <id>TPCCClient-assembly</id>
                         <phase>package</phase>
                         <goals>
                             <goal>single</goal>
