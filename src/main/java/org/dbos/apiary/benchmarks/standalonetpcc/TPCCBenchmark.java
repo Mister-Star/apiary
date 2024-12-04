@@ -85,7 +85,9 @@ public class TPCCBenchmark {
     }
 
     public static void benchmark(WorkloadConfiguration conf, String transactionManager, int threadNum, String mainHostAddr, Integer interval, Integer duration, int percentageNewOrder, boolean mysqlDelayLogFlush, boolean skipLoading, boolean skipBench) throws SQLException, InterruptedException {
+        logger.info("TPCC benchmark start");
         if (!skipLoading) {
+            logger.info("start loading data");
             TPCCLoaderXDST loader = new TPCCLoaderXDST(conf,
             getPostgresDataSource(conf.getDBAddressPG(), XAConfig.postgresPort, conf.getDBName(), "postgres", "postgres"));
             List<LoaderThread> loaders = loader.createLoaderThreads();
