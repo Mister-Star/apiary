@@ -202,7 +202,13 @@ public class ApiaryWorkerExecutable {
             apiaryWorker.registerFunction("XDSTPaymentFunction", XAConfig.postgres, XDSTPaymentFunction::new);
             apiaryWorker.registerFunction("XDSTNewOrderFunction", XAConfig.postgres, XDSTNewOrderFunction::new);
         }
-        else {
+        else if (db.equals("YCSB")) {
+            apiaryWorker = new ApiaryWorker(scheduler, numThreads);
+            PostgresConnection conn = new PostgresConnection("localhost", ApiaryConfig.postgresPort, "postgres", "postgres", "dbos");
+            apiaryWorker.registerConnection(XAConfig.postgres, conn);
+            apiaryWorker.registerFunction("XDSTExecTxnFunction", XAConfig.postgres, XDSTPaymentFunction::new);
+        }
+        else{
             throw new IllegalArgumentException("Option 'db' must be one of (elasticsearch, mongo, gcs).");
         }
 
