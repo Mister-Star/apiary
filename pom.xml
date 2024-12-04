@@ -110,10 +110,10 @@
                         <configuration>
                             <archive>
                                 <manifest>
-                                    <mainClass>org.dbos.apiary.benchmarks.tpcc.BenchmarkingExecutableClient</mainClass>
+                                    <mainClass>org.dbos.apiary.benchmarks.standalonetpcc.BenchmarkingExecutableClient</mainClass>
                                 </manifest>
                             </archive>
-                            <finalName>standalonetpcc-exec</finalName>
+                            <finalName>standalonetpcc-client</finalName>
                         </configuration>
                     </execution>
                     <execution>

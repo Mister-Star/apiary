@@ -154,7 +154,10 @@ public class BenchmarkingExecutableServer {
         apiaryWorker.registerFunction("XDSTPaymentFunction", XAConfig.postgres, XDSTPaymentFunction::new);
         apiaryWorker.registerFunction("XDSTNewOrderFunction", XAConfig.postgres, XDSTNewOrderFunction::new);
 
+
         apiaryWorker.startServing();
+
+        logger.info("apiaryWorker Start!");
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
         System.err.println("Stopping Apiary worker server.");
         apiaryWorker.shutdown();
