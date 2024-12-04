@@ -84,8 +84,8 @@ public class TPCCLoaderXDST {
 
     public List<LoaderThread> createLoaderThreads() throws SQLException {
         List<LoaderThread> threads = new ArrayList<LoaderThread>();
-        int numLoaders = 4;
-        final CountDownLatch itemLatch = new CountDownLatch(numLoaders * 2);
+        int numLoaders = 8;
+        final CountDownLatch itemLatch = new CountDownLatch(numLoaders);
 
         // ITEM
         // The ITEM table will be fully loaded before any other table.
