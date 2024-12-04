@@ -92,8 +92,6 @@ public class TPCCBenchmark {
             getPostgresDataSource(conf.getDBAddressPG(), XAConfig.postgresPort, conf.getDBName(), "postgres", "postgres"));
             List<LoaderThread> loaders = loader.createLoaderThreads();
             ThreadUtil.runNewPool(loaders, conf.getLoaderThreads());
-        } else {
-            throw new RuntimeException("Unknown transaction manager " + transactionManager);
         }
 
         if (skipLoading) {
@@ -125,7 +123,7 @@ public class TPCCBenchmark {
 //                //apiaryWorker.registerFunction(ApiaryConfig.getApiaryClientID, XAConfig.postgres, GetApiaryClientID::new);
 //            apiaryWorker.startServing();
 //        }
-
+        logger.info("Init clients num {} server ip {}", threadNum, mainHostAddr);
         ThreadLocal<ApiaryWorkerClient> client = ThreadLocal.withInitial(() -> new ApiaryWorkerClient(mainHostAddr));
 
         ExecutorService threadPool = Executors.newFixedThreadPool(threadNum);
@@ -165,6 +163,7 @@ public class TPCCBenchmark {
             }
         };
 
+        logger.info("start send transactions");
         long currentTime = System.currentTimeMillis();
         while (currentTime < endTime) {
             long t = System.nanoTime();

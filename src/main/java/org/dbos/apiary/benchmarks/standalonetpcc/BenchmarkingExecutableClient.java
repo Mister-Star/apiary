@@ -55,7 +55,7 @@ public class BenchmarkingExecutableClient {
             mysqlAddr = cmd.getOptionValue("mysqlAddr");
         }
 
-        String transactionManager = "bitronix";
+        String transactionManager = "XDST";
         if (cmd.hasOption("tm")) {
             transactionManager = cmd.getOptionValue("tm");
         }
