@@ -36,7 +36,7 @@ package org.dbos.apiary.benchmarks.standaloneYCSB;
 
 import org.apache.log4j.Logger;
 import org.dbos.apiary.benchmarks.standaloneYCSB.pojo.*;
-import org.dbos.apiary.benchmarks.standaloneYCSB.standalonetpcc.pojo.*;
+import org.dbos.apiary.benchmarks.standaloneYCSB.pojo.*;
 import org.postgresql.ds.PGSimpleDataSource;
 
 import java.sql.*;
