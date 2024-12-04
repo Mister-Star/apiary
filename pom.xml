@@ -199,7 +199,16 @@
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <version>42.4.1</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/postgresql.jar</systemPath>
         </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.opengauss</groupId>-->
+<!--            <artifactId>opengauss-jdbc</artifactId>-->
+<!--            <version>2.0.0</version> &lt;!&ndash; 使用适合的版本 &ndash;&gt;-->
+<!--            <scope>system</scope>-->
+<!--            <systemPath>${project.basedir}/libs/postgresql.jar</systemPath>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
