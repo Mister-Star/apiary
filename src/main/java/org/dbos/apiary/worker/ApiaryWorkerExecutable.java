@@ -5,6 +5,8 @@ import org.apache.commons_voltpatches.cli.CommandLine;
 import org.apache.commons_voltpatches.cli.CommandLineParser;
 import org.apache.commons_voltpatches.cli.DefaultParser;
 import org.apache.commons_voltpatches.cli.Options;
+import org.dbos.apiary.benchmarks.tpcc.procedures.XDSTNewOrderFunction;
+import org.dbos.apiary.benchmarks.tpcc.procedures.XDSTPaymentFunction;
 import org.dbos.apiary.elasticsearch.ElasticsearchConnection;
 import org.dbos.apiary.gcs.GCSConnection;
 import org.dbos.apiary.mongo.MongoConnection;
@@ -48,6 +50,7 @@ import org.dbos.apiary.procedures.postgres.superbenchmark.PostgresSBRead;
 import org.dbos.apiary.procedures.postgres.superbenchmark.PostgresSBUpdate;
 import org.dbos.apiary.procedures.postgres.superbenchmark.PostgresSBWrite;
 import org.dbos.apiary.utilities.ApiaryConfig;
+import org.dbos.apiary.xa.XAConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -192,7 +195,14 @@ public class ApiaryWorkerExecutable {
             apiaryWorker.registerFunction("MongoSBBulkWrite", ApiaryConfig.mongo, MongoSBBulkWrite::new);
             apiaryWorker.registerFunction("MongoSBUpdate", ApiaryConfig.mongo, MongoSBUpdate::new);
             apiaryWorker.registerFunction("MongoSBRead", ApiaryConfig.mongo, MongoSBRead::new);
-        } else {
+        } else if (db.equals("TPCC")) {
+            apiaryWorker = new ApiaryWorker(scheduler, numThreads);
+            PostgresConnection conn = new PostgresConnection("localhost", ApiaryConfig.postgresPort, "postgres", "postgres", "dbos");
+            apiaryWorker.registerConnection(XAConfig.postgres, conn);
+            apiaryWorker.registerFunction("XDSTPaymentFunction", XAConfig.postgres, XDSTPaymentFunction::new);
+            apiaryWorker.registerFunction("XDSTNewOrderFunction", XAConfig.postgres, XDSTNewOrderFunction::new);
+        }
+        else {
             throw new IllegalArgumentException("Option 'db' must be one of (elasticsearch, mongo, gcs).");
         }
 

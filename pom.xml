@@ -87,6 +87,36 @@
                         </configuration>
                     </execution>
                     <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <archive>
+                                <manifest>
+                                    <mainClass>org.dbos.apiary.benchmarks.standalonetpcc.BenchmarkingExecutableServer</mainClass>
+                                </manifest>
+                            </archive>
+                            <finalName>standalonetpcc-server</finalName>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <archive>
+                                <manifest>
+                                    <mainClass>org.dbos.apiary.benchmarks.tpcc.BenchmarkingExecutableClient</mainClass>
+                                </manifest>
+                            </archive>
+                            <finalName>standalonetpcc-exec</finalName>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>worker-assembly</id>
                         <phase>package</phase>
                         <goals>
