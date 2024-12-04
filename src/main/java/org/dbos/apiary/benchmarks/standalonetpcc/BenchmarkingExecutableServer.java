@@ -119,15 +119,6 @@ public class BenchmarkingExecutableServer {
         org.apache.commons_voltpatches.cli.CommandLineParser parser = new org.apache.commons_voltpatches.cli.DefaultParser();
         org.apache.commons_voltpatches.cli.CommandLine cmd = parser.parse(options, args);
 
-        String db;
-        if (cmd.hasOption("db")) {
-            db = cmd.getOptionValue("db");
-            logger.info("Using database: {}", db);
-        } else {
-            logger.info("No database!");
-            return;
-        }
-
         ApiaryScheduler scheduler = new ApiaryNaiveScheduler();
         if (cmd.hasOption("s")) {
             if (cmd.getOptionValue("s").equals("wfq")) {
@@ -154,7 +145,7 @@ public class BenchmarkingExecutableServer {
         apiaryWorker = new ApiaryWorker(scheduler, numThreads);
         PostgresConnection conn = null;
         try {
-             conn = new PostgresConnection(postgresAddress, ApiaryConfig.postgresPort, "postgres", "jack", "Test@123");
+             conn = new PostgresConnection(postgresAddress, ApiaryConfig.postgresPort, "postgres", "postgres", "postgres");
         }
         catch (Exception e) {
             logger.info("Can not connect to Postgres {}", postgresAddress);

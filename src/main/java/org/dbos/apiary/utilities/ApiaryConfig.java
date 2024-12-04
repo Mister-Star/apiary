@@ -3,7 +3,7 @@ package org.dbos.apiary.utilities;
 public class ApiaryConfig {
     public static final int voltdbPort = 21212;
     public static final int workerPort = 8000;
-    public static final int postgresPort = 26000;
+    public static final int postgresPort = 5432;
     public static final int mysqlPort = 3306;
     public static final int mongoPort = 27017;
     public static final long statelessTxid = 1L;
