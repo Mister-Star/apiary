@@ -18,55 +18,55 @@ package org.dbos.apiary.benchmarks.standalonetpcc.procedures;
 
 import com.google.gson.Gson;
 import org.apache.log4j.Logger;
-import org.dbos.apiary.benchmarks.standalonetpcc.TPCCConstants;
-import org.dbos.apiary.benchmarks.standalonetpcc.TPCCUtil;
-import org.dbos.apiary.benchmarks.standalonetpcc.pojo.Customer;
+import org.dbos.apiary.benchmarks.tpcc.TPCCConstants;
+import org.dbos.apiary.benchmarks.tpcc.TPCCUtil;
+import org.dbos.apiary.benchmarks.tpcc.pojo.Customer;
 import org.dbos.apiary.xa.XAFunction;
 
 import java.sql.ResultSet;
 import java.util.Random;
 
 
-public class XDSTMySQLPaymentPart extends XAFunction {
-    private static final Logger LOG = Logger.getLogger(XDSTMySQLPaymentPart.class);
+public class XDSTPaymentPart extends XAFunction {
+    private static final Logger LOG = Logger.getLogger(XDSTPaymentPart.class);
     private static Random gen = new Random();
 
     public static String payUpdateWhseSQL = 
-            "UPDATE " + TPCCConstants.TABLENAME_WAREHOUSE +
+            "UPDATE " + TPCCConstants.TABLENAME_WAREHOUSE + 
             "   SET W_YTD = W_YTD + ? " +
             " WHERE ID = ? ";
     
     public static String payGetWhseSQL = 
             "SELECT W_STREET_1, W_STREET_2, W_CITY, W_STATE, W_ZIP, W_NAME" + 
-            "  FROM " + TPCCConstants.TABLENAME_WAREHOUSE +
+            "  FROM " + TPCCConstants.TABLENAME_WAREHOUSE + 
             " WHERE ID = ?";
     
     public static String payUpdateDistSQL = 
-            "UPDATE " + TPCCConstants.TABLENAME_DISTRICT +
+            "UPDATE " + TPCCConstants.TABLENAME_DISTRICT + 
             "   SET D_YTD = D_YTD + ? " +
             " WHERE ID = ? ";
     
     public static String payGetDistSQL = 
             "SELECT D_STREET_1, D_STREET_2, D_CITY, D_STATE, D_ZIP, D_NAME" + 
-            "  FROM " + TPCCConstants.TABLENAME_DISTRICT +
+            "  FROM " + TPCCConstants.TABLENAME_DISTRICT + 
             " WHERE ID = ? ";
     
     public static String payGetCustSQL = 
             "SELECT C_FIRST, C_MIDDLE, C_LAST, C_STREET_1, C_STREET_2, " + 
             "       C_CITY, C_STATE, C_ZIP, C_PHONE, C_CREDIT, C_CREDIT_LIM, " + 
             "       C_DISCOUNT, C_BALANCE, C_YTD_PAYMENT, C_PAYMENT_CNT, C_SINCE " +
-            "  FROM " + TPCCConstants.TABLENAME_CUSTOMER +
+            "  FROM " + TPCCConstants.TABLENAME_CUSTOMER + 
             " WHERE C_W_ID = ? " +
             "   AND C_D_ID = ? " +
             "   AND C_ID = ?";
     
     public static String payGetCustCdataSQL = 
             "SELECT C_DATA " +
-            "  FROM " + TPCCConstants.TABLENAME_CUSTOMER +
+            "  FROM " + TPCCConstants.TABLENAME_CUSTOMER + 
             " WHERE __apiaryID__ =? and C_W_ID = ?";
     
     public static String payUpdateCustBalCdataSQL = 
-            "UPDATE " + TPCCConstants.TABLENAME_CUSTOMER +
+            "UPDATE " + TPCCConstants.TABLENAME_CUSTOMER + 
             "   SET C_BALANCE = ?, " +
             "       C_YTD_PAYMENT = ?, " + 
             "       C_PAYMENT_CNT = ?, " +
@@ -74,14 +74,14 @@ public class XDSTMySQLPaymentPart extends XAFunction {
             " WHERE ID = ?";
     
     public static String payUpdateCustBalSQL =
-            "UPDATE " + TPCCConstants.TABLENAME_CUSTOMER +
+            "UPDATE " + TPCCConstants.TABLENAME_CUSTOMER + 
             "   SET C_BALANCE = ?, " +
             "       C_YTD_PAYMENT = ?, " +
             "       C_PAYMENT_CNT = ? " +
             " WHERE ID = ?";
     
     public static String payInsertHistSQL = 
-            "INSERT INTO " + TPCCConstants.TABLENAME_HISTORY +
+            "INSERT INTO " + TPCCConstants.TABLENAME_HISTORY + 
             " (H_C_D_ID, H_C_W_ID, H_C_ID, H_D_ID, H_W_ID, H_DATE, H_AMOUNT, H_DATA) " +
             " VALUES (?,?,?,?,?,?,?,?)";
     
@@ -89,7 +89,7 @@ public class XDSTMySQLPaymentPart extends XAFunction {
             "SELECT C_FIRST, C_MIDDLE, C_ID, C_STREET_1, C_STREET_2, C_CITY, " + 
             "       C_STATE, C_ZIP, C_PHONE, C_CREDIT, C_CREDIT_LIM, C_DISCOUNT, " +
             "       C_BALANCE, C_YTD_PAYMENT, C_PAYMENT_CNT, C_SINCE " +
-            "  FROM " + TPCCConstants.TABLENAME_CUSTOMER +
+            "  FROM " + TPCCConstants.TABLENAME_CUSTOMER + 
             " WHERE C_W_ID = ? " +
             "   AND C_D_ID = ? " +
             "   AND C_LAST = ? ";
@@ -128,7 +128,7 @@ public class XDSTMySQLPaymentPart extends XAFunction {
             //context.executeUpdate(payUpdateCustBalCdataSQL, TPCCUtil.concatenate(c.c_w_id, c.c_d_id, c.c_id), c.c_balance, c.c_ytd_payment, c.c_payment_cnt, c_data, customerWarehouseID, customerDistrictID, c.c_id);
             c.c_data = c_data;
             id = TPCCUtil.makeApiaryId(TPCCConstants.TABLENAME_CUSTOMER, c.c_w_id, c.c_d_id, c.c_id);
-            context.executeUpsert(TPCCConstants.TABLENAME_CUSTOMER, id,
+            context.executeUpsert(TPCCConstants.TABLENAME_CUSTOMER, id, 
                                 c.c_w_id, c.c_d_id, c.c_id, c.c_discount, 
                                 c.c_credit, c.c_last, c.c_first, 
                                 c.c_credit_lim, c.c_balance, c.c_ytd_payment, 
@@ -161,7 +161,7 @@ public class XDSTMySQLPaymentPart extends XAFunction {
             if (c.c_middle == null) {
                 LOG.info("c.c_middle is null");
             }
-            context.executeUpsert(TPCCConstants.TABLENAME_CUSTOMER, id,
+            context.executeUpsert(TPCCConstants.TABLENAME_CUSTOMER, id, 
                                 c.c_w_id, c.c_d_id, c.c_id, c.c_discount, 
                                 c.c_credit, c.c_last, c.c_first, 
                                 c.c_credit_lim, c.c_balance, c.c_ytd_payment, 

@@ -96,14 +96,6 @@ public class XDSTNewOrderFunction extends XAFunction {
     " VALUES (?,?,?,?,?,?,?,?,?,?)";
 
 	public static Map<String, Object> orderLineLogic(org.dbos.apiary.postgres.PostgresContext context, int ol_supply_w_id, int ol_i_id, int ol_quantity, int ol_number, int o_ol_cnt, int w_id, int d_id) throws Exception {
-		String supplyWarehouseDBType = TPCCLoader.getDBType(ol_supply_w_id);
-		if (supplyWarehouseDBType.equals(TPCCConstants.DBTYPE_MYSQL)) {
-			Gson gson = new Gson();
-			String cJson = context.apiaryCallFunction("XDSTMySQLNewOrderPart", ol_supply_w_id, ol_i_id, ol_quantity, ol_number, o_ol_cnt, w_id, d_id).getString();
-            Type resMapType = new TypeToken<Map<String, Object>>() {}.getType();
-			Map<String, Object> resMap = gson.fromJson(cJson, resMapType);
-			return resMap;
-		}
 		Map<String, Object> resMap = new HashMap<>();
 		String ol_dist_info = new String();
 		// stmtGetItem.setInt(1, ol_i_id);

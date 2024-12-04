@@ -53,12 +53,10 @@ public class TPCCLoaderXDST {
 	private final WorkloadConfiguration conf;
 	private final Random rng = new Random();
 	PGSimpleDataSource PostgresSource;
-	MysqlDataSource MySQLSource;
 
-    public TPCCLoaderXDST(WorkloadConfiguration conf, PGSimpleDataSource PostgresSource, MysqlDataSource MySQLSource) {
+    public TPCCLoaderXDST(WorkloadConfiguration conf, PGSimpleDataSource PostgresSource) {
         this.conf = conf;
 		this.PostgresSource = PostgresSource;
-		this.MySQLSource = MySQLSource;
         numWarehouses = conf.getNumWarehouses();
         if (numWarehouses <= 0) {
             //where would be fun in that?
@@ -97,15 +95,6 @@ public class TPCCLoaderXDST {
             int numItemsPerLoader = TPCCConfig.configItemCount / numLoaders;
             int itemStartInclusive = i;
             int itemEndInclusive = Math.min(TPCCConfig.configItemCount, itemStartInclusive + numItemsPerLoader - 1);
-            Connection mysqlConn = MySQLSource.getConnection();
-			mysqlConn.setAutoCommit(false);
-			threads.add(new LoaderThread(mysqlConn, "TPCC") {
-                @Override
-                public void load(Connection conn) throws SQLException {
-                    loadItems(conn, itemStartInclusive, itemEndInclusive);
-                    itemLatch.countDown();
-                }
-            });
 			Connection pgConn = PostgresSource.getConnection();
 			pgConn.setAutoCommit(false);
 			threads.add(new LoaderThread(pgConn, "TPCC") {
@@ -125,11 +114,7 @@ public class TPCCLoaderXDST {
         for (int w = 1; w <= numWarehouses; w++) {
             final int w_id = w;
 			Connection rawConnection = null;
-			if (w_id % 2 ==0) {
-				rawConnection = MySQLSource.getConnection();
-			} else {
-				rawConnection = PostgresSource.getConnection();
-			}
+			rawConnection = PostgresSource.getConnection();
 			rawConnection.setAutoCommit(false);
             threads.add(new LoaderThread(rawConnection, "tpcc") {
                 @Override

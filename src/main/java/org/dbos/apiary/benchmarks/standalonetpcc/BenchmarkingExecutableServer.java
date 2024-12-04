@@ -114,7 +114,7 @@ public class BenchmarkingExecutableServer {
                 "The secondary used by this worker.");
         options.addOption("s", true, "Which Scheduler?");
         options.addOption("t", true, "How many worker threads?");
-        options.addOption("secondaryAddress", true, "Secondary Address.");
+        options.addOption("PostgresAddress", true, "Postgre Address.");
 
         org.apache.commons_voltpatches.cli.CommandLineParser parser = new org.apache.commons_voltpatches.cli.DefaultParser();
         org.apache.commons_voltpatches.cli.CommandLine cmd = parser.parse(options, args);
@@ -143,10 +143,22 @@ public class BenchmarkingExecutableServer {
             numThreads = Integer.parseInt(cmd.getOptionValue("t"));
         }
         logger.info("{} worker threads", numThreads);
+
+        String postgresAddress = "localhost";
+        if (cmd.hasOption("PostgresAddress")) {
+            postgresAddress= cmd.getOptionValue("PostgresAddress");
+        }
+        logger.info("PostgresAddress {}", postgresAddress);
         ApiaryWorker apiaryWorker;
 
         apiaryWorker = new ApiaryWorker(scheduler, numThreads);
-        PostgresConnection conn = new PostgresConnection("localhost", ApiaryConfig.postgresPort, "postgres", "jack", "Test@123");
+        PostgresConnection conn = null;
+        try {
+             conn = new PostgresConnection(postgresAddress, ApiaryConfig.postgresPort, "postgres", "jack", "Test@123");
+        }
+        catch (Exception e) {
+            logger.info("Can not connect to Postgres {}", postgresAddress);
+        }
         apiaryWorker.registerConnection(XAConfig.postgres, conn);
         apiaryWorker.registerFunction("XDSTPaymentFunction", XAConfig.postgres, XDSTPaymentFunction::new);
         apiaryWorker.registerFunction("XDSTNewOrderFunction", XAConfig.postgres, XDSTNewOrderFunction::new);
