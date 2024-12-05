@@ -23,8 +23,6 @@ public class TPCCBenchmark {
         logger.info("{}: count {}, avg latency {}, p50 latency {}, p75 latency {}, p90 latency {}, p95 latency {}, p99 latency {} ", p.size(), name, p.average(), p.nth(50), p.nth(75), p.nth(90), p.nth(95), p.nth(99));
     }
     private static final Logger logger = LoggerFactory.getLogger(TPCCBenchmark.class);
-    private static final int numWorkerThreads = 16;
-    private static final int threadPoolSize = 64;
     private static final int threadWarmupMs = 30000;  // First 30 seconds of requests would be warm-up and not recorded.
 
     private static String[] DBTypes = {XAConnection.MySQLDBType, XAConnection.PostgresDBType};
@@ -33,40 +31,6 @@ public class TPCCBenchmark {
     private static final Collection<Long> paymentTimes = new ConcurrentLinkedQueue<>();
     private static final Collection<Long> newOrderTimes = new ConcurrentLinkedQueue<>();
     private static final Collection<Long> transactionTimes = new ConcurrentLinkedQueue<>();
-
-    static XAConnection getBitronix2MySQLXAConnection(String mysqlAddr) throws SQLException {
-        BitronixXADBConnection mysqlConn = new BitronixXADBConnection("MySQL" + UUID.randomUUID().toString(), "com.mysql.cj.jdbc.MysqlXADataSource", mysqlAddr, XAConfig.mysqlPort, "dbos", "root", "dbos");
-        BitronixXADBConnection mysql2Conn = new BitronixXADBConnection("MySQL" + UUID.randomUUID().toString(), "com.mysql.cj.jdbc.MysqlXADataSource", mysqlAddr, XAConfig.mysql2Port, "dbos", "root", "dbos");
-        // Hack: Use mysqlConn as postgres connection to get a setup with 2 mysql instances.
-        XAConnection conn = new BitronixXAConnection(mysqlConn, mysql2Conn);
-        return conn;
-    }
-
-    static XAConnection getBitronixPGMySQLXAConnection(String postgresAddr, String mysqlAddr) throws SQLException {
-        BitronixXADBConnection mysqlConn = new BitronixXADBConnection("MySQL" + UUID.randomUUID().toString(), "com.mysql.cj.jdbc.MysqlXADataSource", mysqlAddr, XAConfig.mysqlPort, "dbos", "root", "dbos");
-        BitronixXADBConnection postgresConn = new BitronixXADBConnection("Postgres" + UUID.randomUUID().toString(), "org.postgresql.xa.PGXADataSource", postgresAddr, XAConfig.postgresPort, "dbos", "postgres", "dbos");
-        XAConnection conn = new BitronixXAConnection(postgresConn, mysqlConn);
-        return conn;
-    }
-
-    static XAConnection getXJPGMySQLXAConnection(String postgresAddr, String mysqlAddr) throws SQLException {
-        MySQLXAConnection mysqlConn = new MySQLXAConnection(mysqlAddr, XAConfig.mysqlPort, "dbos", "root", "dbos");
-        PostgresXAConnection postgresConn = new PostgresXAConnection(postgresAddr, XAConfig.postgresPort, "dbos", "postgres", "dbos");
-        XAConnection conn = new XAConnection(postgresConn, mysqlConn);
-        return conn;
-    }  
-
-    static MysqlDataSource getMySQLDataSource(String hostname, Integer port, String databaseName, String databaseUsername, String databasePassword) {
-        MysqlDataSource ds = new MysqlDataSource();
-        // Set dataSource Properties
-        ds.setServerName(hostname);
-        ds.setPortNumber(port);
-        ds.setDatabaseName(databaseName);
-        ds.setUser(databaseUsername);
-        ds.setPassword(databasePassword);
-
-        return ds;
-    }
 
     static PGSimpleDataSource getPostgresDataSource(String hostname, Integer port, String databaseName, String databaseUsername, String databasePassword) {
         PGSimpleDataSource ds = new PGSimpleDataSource();
@@ -108,16 +72,6 @@ public class TPCCBenchmark {
             return;
         }
 
-//        ApiaryWorker apiaryWorker = null;
-//        if (mainHostAddr.equalsIgnoreCase("localhost")) {
-//            // Start a worker in this process. Otherwise, the worker itself could be remote.
-//            apiaryWorker = new ApiaryWorker(new ApiaryNaiveScheduler(), numWorkerThreads);
-//            apiaryWorker.registerConnection(XAConfig.postgres, pconn);
-//            apiaryWorker.registerFunction("XDSTPaymentFunction", XAConfig.postgres, XDSTPaymentFunction::new);
-//            apiaryWorker.registerFunction("XDSTNewOrderFunction", XAConfig.postgres, XDSTNewOrderFunction::new);
-//                //apiaryWorker.registerFunction(ApiaryConfig.getApiaryClientID, XAConfig.postgres, GetApiaryClientID::new);
-//            apiaryWorker.startServing();
-//        }
         logger.info("Init clients num {} server ip {}", threadNum, mainHostAddr);
         ThreadLocal<ApiaryWorkerClient> client = ThreadLocal.withInitial(() -> new ApiaryWorkerClient(mainHostAddr));
 
@@ -138,18 +92,12 @@ public class TPCCBenchmark {
                 long t0 = System.nanoTime();
                 if (chooser < percentageNewOrder) {
                     client.get().executeFunction("StandaloneNewOrderFunction", warehouseId, conf.getNumWarehouses()).getInt();
-                    if (warmed.get()) {
-                        newOrderTimes.add(System.nanoTime() - t0);
-                    }
+                    newOrderTimes.add(System.nanoTime() - t0);
                 } else {
                     client.get().executeFunction("StandalonePaymentFunction", warehouseId, conf.getNumWarehouses()).getInt();
-                    if (warmed.get()) {
-                        paymentTimes.add(System.nanoTime() - t0);
-                    }
+                    paymentTimes.add(System.nanoTime() - t0);
                 }
-                if (warmed.get()) {
-                    transactionTimes.add(System.nanoTime() - t0);
-                }
+                transactionTimes.add(System.nanoTime() - t0);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -164,6 +112,7 @@ public class TPCCBenchmark {
                 // Busy-spin
             }
             currentTime = System.currentTimeMillis();
+
         }
         warmed.set(false);
         long elapsedTime = (System.currentTimeMillis() - startTime) - threadWarmupMs;
