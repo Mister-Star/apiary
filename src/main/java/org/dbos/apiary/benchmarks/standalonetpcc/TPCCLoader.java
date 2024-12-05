@@ -52,11 +52,9 @@ public class TPCCLoader {
 	private final WorkloadConfiguration conf;
 	private final Random rng = new Random();
 	BaseXAConnection PostgresConnection;
-	BaseXAConnection MySQLConnection;
     public TPCCLoader(WorkloadConfiguration conf, BaseXAConnection PostgresConnection, BaseXAConnection MySQLConnection) {
         this.conf = conf;
 		this.PostgresConnection = PostgresConnection;
-		this.MySQLConnection = MySQLConnection;
         numWarehouses = conf.getNumWarehouses();
         if (numWarehouses <= 0) {
             //where would be fun in that?
@@ -77,9 +75,7 @@ public class TPCCLoader {
     private static final int FIRST_UNPROCESSED_O_ID = 2101;
     
 	public static String getDBType(int wid) {
-		// Odd warehouse id for Postgres
-		// Even warehouse id for MySQL
-		return wid % 2 == 0? TPCCConstants.DBTYPE_MYSQL : TPCCConstants.DBTYPE_POSTGRES;
+		return TPCCConstants.DBTYPE_POSTGRES;
 	}
 
     public List<LoaderThread> createLoaderThreads() throws SQLException {
@@ -95,14 +91,7 @@ public class TPCCLoader {
             int numItemsPerLoader = TPCCConfig.configItemCount / numLoaders;
             int itemStartInclusive = i;
             int itemEndInclusive = Math.min(TPCCConfig.configItemCount, itemStartInclusive + numItemsPerLoader - 1);
-            threads.add(new LoaderThread(MySQLConnection.getNewConnection(), "TPCC") {
-                @Override
-                public void load(Connection conn) throws SQLException {
-                    loadItems(conn, itemStartInclusive, itemEndInclusive);
-                    itemLatch.countDown();
-                }
-            });
-			threads.add(new LoaderThread(PostgresConnection.getNewConnection(), "TPCC") {
+			threads.add(new LoaderThread(PostgresConnection.getNewConnection(), "postgres") {
                 @Override
                 public void load(Connection conn) throws SQLException {
                     loadItems(conn, itemStartInclusive, itemEndInclusive);
@@ -119,15 +108,10 @@ public class TPCCLoader {
         for (int w = 1; w <= numWarehouses; w++) {
             final int w_id = w;
 			Connection rawConnection = null;
-			if (w_id % 2 ==0) {
-				rawConnection = MySQLConnection.getNewConnection();
-			} else {
-				rawConnection = PostgresConnection.getNewConnection();
-			}
-            threads.add(new LoaderThread(rawConnection, "tpcc") {
+			rawConnection = PostgresConnection.getNewConnection();
+            threads.add(new LoaderThread(rawConnection, "postgres") {
                 @Override
                 public void load(Connection conn) throws SQLException {
-					
                     // Make sure that we load the ITEM table first
                     try {
                         itemLatch.await();

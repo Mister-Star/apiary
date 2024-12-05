@@ -134,10 +134,7 @@ public class TPCCBenchmark {
             }
             try {
                 int chooser = ThreadLocalRandom.current().nextInt(100);
-                int warehouseId;
-                do {
-                    warehouseId = ThreadLocalRandom.current().nextInt(conf.getNumWarehouses()) + 1;
-                } while (TPCCLoader.getDBType(warehouseId).equals(TPCCConstants.DBTYPE_POSTGRES) == false);
+                int warehouseId = ThreadLocalRandom.current().nextInt(conf.getNumWarehouses()) + 1;
                 long t0 = System.nanoTime();
                 if (chooser < percentageNewOrder) {
                     client.get().executeFunction("StandaloneNewOrderFunction", warehouseId, conf.getNumWarehouses()).getInt();

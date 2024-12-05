@@ -242,9 +242,6 @@ public class StandalonNewOrderFunction extends XAFunction {
             } else {
 				if (remoteWarehouseId == -1) {
 					remoteWarehouseId = TPCCUtil.randomNumber(1, numWarehouses, gen);
-					while (TPCCLoader.getDBType(remoteWarehouseId).equals(TPCCConstants.DBTYPE_POSTGRES)) {
-						remoteWarehouseId = TPCCUtil.randomNumber(1, numWarehouses, gen);
-					}
 				}
 				supplierWarehouseIDs[i] = remoteWarehouseId;
                 allLocal = 0;
@@ -276,10 +273,6 @@ public class StandalonNewOrderFunction extends XAFunction {
 		double ol_amount, total_amount = 0;
 		
         assert(remoteWarehouseId != terminalWarehouseID);
-        String homeWarehouseDBType = TPCCLoader.getDBType(w_id);
-		assert(homeWarehouseDBType.equals(TPCCConstants.DBTYPE_POSTGRES));
-        String remoteWarehouseDBType = TPCCLoader.getDBType(remoteWarehouseId);
-		assert(remoteWarehouseDBType.equals(TPCCConstants.DBTYPE_MYSQL));
 
 		try {
 			// stmtGetCust.setInt(1, w_id);

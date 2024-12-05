@@ -120,8 +120,6 @@ public class StandalonPaymentFunction extends XAFunction {
 
 
     public static String getCustomerByName(org.dbos.apiary.postgres.PostgresContext context, int c_w_id, int c_d_id, String customerLastName) throws Exception {
-        String customerWarehouseDBType = org.dbos.apiary.benchmarks.standalonetpcc.TPCCLoader.getDBType(c_w_id);
-        assert(customerWarehouseDBType.equals(org.dbos.apiary.benchmarks.standalonetpcc.TPCCConstants.DBTYPE_POSTGRES));
         ArrayList<org.dbos.apiary.benchmarks.standalonetpcc.pojo.Customer> customers = new ArrayList<org.dbos.apiary.benchmarks.standalonetpcc.pojo.Customer>();
 
         // customerByName.setInt(1, c_w_id);
@@ -156,8 +154,6 @@ public class StandalonPaymentFunction extends XAFunction {
     }
 
     public static String getCustomerById(org.dbos.apiary.postgres.PostgresContext context, int c_w_id, int c_d_id, int c_id) throws Exception {
-        String customerWarehouseDBType = org.dbos.apiary.benchmarks.standalonetpcc.TPCCLoader.getDBType(c_w_id);
-        assert(customerWarehouseDBType.equals(TPCCConstants.DBTYPE_POSTGRES));
         ResultSet rs = context.executeQuery(payGetCustSQL_function, org.dbos.apiary.benchmarks.standalonetpcc.TPCCUtil.makeApiaryId(org.dbos.apiary.benchmarks.standalonetpcc.TPCCConstants.TABLENAME_CUSTOMER, c_w_id, c_d_id, c_id), c_w_id);
         if (!rs.next()) {
             throw new RuntimeException("C_ID=" + c_id + " C_D_ID=" + c_d_id + " C_W_ID=" + c_w_id + " not found!");
@@ -172,10 +168,6 @@ public class StandalonPaymentFunction extends XAFunction {
     }
 
     public static int runFunction(org.dbos.apiary.postgres.PostgresContext context, int w_id, int numWarehouses) throws Exception {
-        
-        String homeWarehouseDBType = TPCCLoader.getDBType(w_id);
-        assert(homeWarehouseDBType.equals(TPCCConstants.DBTYPE_POSTGRES));
-
         // initializing all prepared statements
         // payUpdateWhse = this.getPreparedStatement(conn, payUpdateWhseSQL);
         // payGetWhse = this.getPreparedStatement(conn, payGetWhseSQL);
@@ -197,14 +189,12 @@ public class StandalonPaymentFunction extends XAFunction {
         int customerDistrictID;
         int customerWarehouseID;
 
-        do {// make sure the transaction access two databases
-            customerDistrictID = TPCCUtil.randomNumber(1, TPCCConfig.configDistPerWhse, gen);
-            do {
-                customerWarehouseID = TPCCUtil.randomNumber(1, numWarehouses, gen);
-            } while (customerWarehouseID == w_id && numWarehouses > 1);
-        } while (TPCCLoader.getDBType(customerWarehouseID).equals(TPCCConstants.DBTYPE_POSTGRES));
+        customerDistrictID = TPCCUtil.randomNumber(1, TPCCConfig.configDistPerWhse, gen);
+        do {
+            customerWarehouseID = TPCCUtil.randomNumber(1, numWarehouses, gen);
+        } while (customerWarehouseID == w_id && numWarehouses > 1);
 
-        String customerWarehouseDBType = TPCCLoader.getDBType(customerWarehouseID);
+        String customerWarehouseDBType = TPCCConstants.DBTYPE_POSTGRES;
 
         // if (x <= 85) {
         //     customerDistrictID = districtID;
