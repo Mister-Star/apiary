@@ -24,7 +24,6 @@ public class TPCCBenchmark {
         logger.info("{}: count {}, avg latency {}, p50 latency {}, p75 latency {}, p90 latency {}, p95 latency {}, p99 latency {} ", p.size(), name, p.average(), p.nth(50), p.nth(75), p.nth(90), p.nth(95), p.nth(99));
     }
     private static final Logger logger = LoggerFactory.getLogger(TPCCBenchmark.class);
-    private static final int threadWarmupMs = 30000;  // First 30 seconds of requests would be warm-up and not recorded.
 
     private static String[] DBTypes = {XAConnection.MySQLDBType, XAConnection.PostgresDBType};
 
@@ -78,7 +77,7 @@ public class TPCCBenchmark {
 
         ExecutorService threadPool = Executors.newFixedThreadPool(threadNum);
         long startTime = System.currentTimeMillis();
-        long endTime = startTime + (duration * 1000 + threadWarmupMs);
+        long endTime = startTime + (duration * 1000);
         AtomicBoolean warmed = new AtomicBoolean(false);
         AtomicBoolean stopped = new AtomicBoolean(false);
         AtomicBoolean success = new AtomicBoolean(true);
@@ -120,7 +119,7 @@ public class TPCCBenchmark {
             currentTime = System.currentTimeMillis();
         }
         warmed.set(false);
-        long elapsedTime = (System.currentTimeMillis() - startTime) - threadWarmupMs;
+        long elapsedTime = (System.currentTimeMillis() - startTime);
 
         if (success.get()) {
             logger.info("All succeeded!");
@@ -135,7 +134,7 @@ public class TPCCBenchmark {
             double throughput = (double) numQueries * 1000.0 / elapsedTime;
             long p50 = queryTimes.get(numQueries / 2);
             long p99 = queryTimes.get((numQueries * 99) / 100);
-            logger.info("New order transactions: Duration: {} Interval: {}μs Queries: {} TPS: {} Average: {}μs p50: {}μs p99: {}μs", elapsedTime, interval, numQueries, String.format("%.03f", throughput), average, p50, p99);
+            logger.info("New order transactions: Duration: {} ClientNum: {} Queries: {} TPS: {} Average: {}μs p50: {}μs p99: {}μs", elapsedTime, threadNum, numQueries, String.format("%.03f", throughput), average, p50, p99);
         } else {
             logger.info("No new order transactions");
         }
@@ -147,7 +146,7 @@ public class TPCCBenchmark {
             double throughput = (double) numQueries * 1000.0 / elapsedTime;
             long p50 = queryTimes.get(numQueries / 2);
             long p99 = queryTimes.get((numQueries * 99) / 100);
-            logger.info("Payment transactions: Duration: {} Interval: {}μs Queries: {} TPS: {} Average: {}μs p50: {}μs p99: {}μs", elapsedTime, interval, numQueries, String.format("%.03f", throughput), average, p50, p99);
+            logger.info("Payment transactions: Duration: {} ClientNum: {} Queries: {} TPS: {} Average: {}μs p50: {}μs p99: {}μs", elapsedTime, threadNum, numQueries, String.format("%.03f", throughput), average, p50, p99);
         } else {
             logger.info("No payment transactions");
         }
@@ -159,16 +158,11 @@ public class TPCCBenchmark {
             double throughput = (double) numQueries * 1000.0 / elapsedTime;
             long p50 = queryTimes.get(numQueries / 2);
             long p99 = queryTimes.get((numQueries * 99) / 100);
-            logger.info("Total Operations: Duration: {} Interval: {}μs Queries: {} TPS: {} Average: {}μs p50: {}μs p99: {}μs", elapsedTime, interval, numQueries, String.format("%.03f", throughput), average, p50, p99);
+            logger.info("Total Operations: Duration: {} ClientNum: {} Queries: {} TPS: {} Average: {}μs p50: {}μs p99: {}μs", elapsedTime, threadNum, numQueries, String.format("%.03f", throughput), average, p50, p99);
         }
         stopped.set(true);
         threadPool.shutdown();
         threadPool.awaitTermination(10000, TimeUnit.SECONDS);
         logger.info("All queries finished! {}", System.currentTimeMillis() - startTime);
-        printPercentile(StandalonNewOrderFunction.p1, "XDSTNewOrderFunction.p1");
-        printPercentile(StandalonNewOrderFunction.p2, "XDSTNewOrderFunction.p2");
-        printPercentile(StandalonNewOrderFunction.p3, "XDSTNewOrderFunction.p3");
-        printPercentile(StandalonNewOrderFunction.p4, "XDSTNewOrderFunction.p4");
-        printPercentile(StandalonNewOrderFunction.p5, "XDSTNewOrderFunction.p5");
     }
 }
