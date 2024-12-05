@@ -140,12 +140,12 @@ public class TPCCBenchmark {
                 } while (TPCCLoader.getDBType(warehouseId).equals(TPCCConstants.DBTYPE_POSTGRES) == false);
                 long t0 = System.nanoTime();
                 if (chooser < percentageNewOrder) {
-                    client.get().executeFunction("XDSTNewOrderFunction", warehouseId, conf.getNumWarehouses()).getInt();
+                    client.get().executeFunction("StandaloneNewOrderFunction", warehouseId, conf.getNumWarehouses()).getInt();
                     if (warmed.get()) {
                         newOrderTimes.add(System.nanoTime() - t0);
                     }
                 } else {
-                    client.get().executeFunction("XDSTPaymentFunction", warehouseId, conf.getNumWarehouses()).getInt();
+                    client.get().executeFunction("StandalonePaymentFunction", warehouseId, conf.getNumWarehouses()).getInt();
                     if (warmed.get()) {
                         paymentTimes.add(System.nanoTime() - t0);
                     }

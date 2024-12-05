@@ -296,7 +296,7 @@ public class ApiaryWorker {
                         arguments[i] = Utilities.byteArrayToIntArray(byteArray);
                     }
                 }
-                logger.info("exec a function");
+//                logger.info("exec a function");
                 executeFunction(req.getName(), req.getService(), execID, callerID, functionID,
                         isReplay, address, req.getSenderTimestampNano(), arguments);
             } catch (AssertionError | Exception e) {
