@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class TPCCBenchmark {
@@ -82,6 +83,8 @@ public class TPCCBenchmark {
         AtomicBoolean stopped = new AtomicBoolean(false);
         AtomicBoolean success = new AtomicBoolean(true);
 
+        AtomicInteger totalTasks = new AtomicInteger(0);
+
         Runnable r = () -> {
             if (stopped.get() == true) {
                 return;
@@ -98,6 +101,7 @@ public class TPCCBenchmark {
                     paymentTimes.add(System.nanoTime() - t0);
                 }
                 transactionTimes.add(System.nanoTime() - t0);
+                totalTasks.decrementAndGet();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -108,11 +112,12 @@ public class TPCCBenchmark {
         while (currentTime < endTime) {
             long t = System.nanoTime();
             threadPool.submit(r);
-            while (System.nanoTime() - t < interval.longValue() * 1000) {
+            totalTasks.incrementAndGet();
+            while (totalTasks.get() >= threadNum) {
+                if(System.currentTimeMillis() >= endTime) break;
                 // Busy-spin
             }
             currentTime = System.currentTimeMillis();
-
         }
         warmed.set(false);
         long elapsedTime = (System.currentTimeMillis() - startTime) - threadWarmupMs;
