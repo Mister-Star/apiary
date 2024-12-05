@@ -194,8 +194,6 @@ public class StandalonPaymentFunction extends XAFunction {
             customerWarehouseID = TPCCUtil.randomNumber(1, numWarehouses, gen);
         } while (customerWarehouseID == w_id && numWarehouses > 1);
 
-        String customerWarehouseDBType = TPCCConstants.DBTYPE_POSTGRES;
-
         // if (x <= 85) {
         //     customerDistrictID = districtID;
         //     customerWarehouseID = w_id;
@@ -300,7 +298,7 @@ public class StandalonPaymentFunction extends XAFunction {
              // payGetCustCdata.setInt(2, customerDistrictID);
              // payGetCustCdata.setInt(3, c.c_id);
              // rs = payGetCustCdata.executeQuery();
-             rs = context.executeQuery(customerWarehouseDBType, payGetCustCdataSQL, customerWarehouseID, customerDistrictID, c.c_id);
+             rs = context.executeQuery(payGetCustCdataSQL, customerWarehouseID, customerDistrictID, c.c_id);
              if (!rs.next())
                  throw new RuntimeException("C_ID=" + c.c_id + " C_W_ID=" + customerWarehouseID + " C_D_ID=" + customerDistrictID + " not found!");
              c_data = rs.getString("C_DATA");
@@ -320,7 +318,7 @@ public class StandalonPaymentFunction extends XAFunction {
              // result = payUpdateCustBalCdata.executeUpdate();
 
              //result = context.executeUpdate(customerWarehouseDBType, payUpdateCustBalCdataSQL, c.c_balance, c.c_ytd_payment, c.c_payment_cnt, c_data, customerWarehouseID, customerDistrictID, c.c_id);
-             context.executeUpdate(customerWarehouseDBType, payUpdateCustBalCdataSQL, c.c_balance, c.c_ytd_payment, c.c_payment_cnt, c_data, customerWarehouseID, customerDistrictID, c.c_id);
+             context.executeUpdate(payUpdateCustBalCdataSQL, c.c_balance, c.c_ytd_payment, c.c_payment_cnt, c_data, customerWarehouseID, customerDistrictID, c.c_id);
              // if (result == 0)
              //     throw new RuntimeException("Error in PYMNT Txn updating Customer C_ID=" + c.c_id + " C_W_ID=" + customerWarehouseID + " C_D_ID=" + customerDistrictID);
 
@@ -335,7 +333,7 @@ public class StandalonPaymentFunction extends XAFunction {
              // result = context.executeUpdate(customerWarehouseDBType, payUpdateCustBalSQL, c.c_balance, c.c_ytd_payment, c.c_payment_cnt, customerWarehouseID, customerDistrictID, c.c_id);
              // if (result == 0)
              //     throw new RuntimeException("C_ID=" + c.c_id + " C_W_ID=" + customerWarehouseID + " C_D_ID=" + customerDistrictID + " not found!");
-             context.executeUpdate(customerWarehouseDBType, payUpdateCustBalSQL, c.c_balance, c.c_ytd_payment, c.c_payment_cnt, customerWarehouseID, customerDistrictID, c.c_id);
+             context.executeUpdate(payUpdateCustBalSQL, c.c_balance, c.c_ytd_payment, c.c_payment_cnt, customerWarehouseID, customerDistrictID, c.c_id);
          }
 
 
