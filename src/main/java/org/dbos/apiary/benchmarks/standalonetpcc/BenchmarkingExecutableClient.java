@@ -63,7 +63,6 @@ public class BenchmarkingExecutableClient {
         WorkloadConfiguration conf = new WorkloadConfiguration();
         conf.setBenchmarkName("TPCC");
         conf.setDBName("postgres");
-        conf.setDBAddressMySQL(mysqlAddr);
         conf.setDBAddressPG(postgresAddr);
         boolean mysqlDelayLogFlush = false;
         boolean skipLoading = false;

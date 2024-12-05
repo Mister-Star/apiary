@@ -96,6 +96,7 @@ public class PostgresContext extends ApiaryContext {
 
     @Override
     public FunctionOutput apiaryCallFunction(String name, Object... inputs) throws Exception {
+        logger.info("Postgres Context apiaryCallFunction name: {}", name);
         ApiaryFunction f = workerContext.getFunction(name);
         String functionType = workerContext.getFunctionType(name);
         if (functionType.equals(ApiaryConfig.postgres) || functionType.equals(ApiaryConfig.stateless)) {

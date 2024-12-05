@@ -16,22 +16,19 @@
 
 package org.dbos.apiary.benchmarks.standalonetpcc.procedures;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import org.apache.log4j.Logger;
 import org.dbos.apiary.benchmarks.standalonetpcc.*;
 import org.dbos.apiary.utilities.Percentile;
 import org.dbos.apiary.xa.XAFunction;
 
-import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
 
-public class XDSTNewOrderFunction extends XAFunction {
-    private static final Logger LOG = Logger.getLogger(XDSTNewOrderFunction.class);
+public class StandalonNewOrderFunction extends XAFunction {
+    private static final Logger LOG = Logger.getLogger(StandalonNewOrderFunction.class);
     private static Random gen = new Random();
 	public static Percentile p1 = new Percentile(); 
 	public static Percentile p2 = new Percentile(); 
@@ -364,7 +361,6 @@ public class XDSTNewOrderFunction extends XAFunction {
 			// stmtInsertNewOrder.executeUpdate();
             context.executeUpdate(stmtInsertNewOrderSQL, TPCCUtil.makeApiaryId(TPCCConstants.TABLENAME_NEWORDER, w_id, d_id, o_id), o_id, d_id, w_id);
 			/*TODO: add error checking */
-
 
 			/* woonhak, [[change order				 
 			stmtInsertOOrder.setInt(1, o_id);

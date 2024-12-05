@@ -4,8 +4,8 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
-import org.dbos.apiary.benchmarks.tpcc.procedures.XDSTNewOrderFunction;
-import org.dbos.apiary.benchmarks.tpcc.procedures.XDSTPaymentFunction;
+import org.dbos.apiary.benchmarks.standalonetpcc.procedures.StandalonNewOrderFunction;
+import org.dbos.apiary.benchmarks.standalonetpcc.procedures.StandalonPaymentFunction;
 import org.dbos.apiary.postgres.PostgresConnection;
 import org.dbos.apiary.utilities.ApiaryConfig;
 import org.dbos.apiary.worker.ApiaryNaiveScheduler;
@@ -151,8 +151,8 @@ public class BenchmarkingExecutableServer {
             logger.info("Can not connect to Postgres {}", postgresAddress);
         }
         apiaryWorker.registerConnection(XAConfig.postgres, conn);
-        apiaryWorker.registerFunction("XDSTPaymentFunction", XAConfig.postgres, XDSTPaymentFunction::new);
-        apiaryWorker.registerFunction("XDSTNewOrderFunction", XAConfig.postgres, XDSTNewOrderFunction::new);
+        apiaryWorker.registerFunction("StandalonePaymentFunction", XAConfig.postgres, StandalonPaymentFunction::new);
+        apiaryWorker.registerFunction("StandaloneNewOrderFunction", XAConfig.postgres, StandalonNewOrderFunction::new);
 
 
         apiaryWorker.startServing();

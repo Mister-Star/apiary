@@ -30,8 +30,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
 
-public class XDSTPaymentFunction extends XAFunction {
-    private static final Logger LOG = Logger.getLogger(XDSTPaymentFunction.class);
+public class StandalonPaymentFunction extends XAFunction {
+    private static final Logger LOG = Logger.getLogger(StandalonPaymentFunction.class);
     private static Random gen = new Random();
 
     public static String payUpdateWhseSQL = 

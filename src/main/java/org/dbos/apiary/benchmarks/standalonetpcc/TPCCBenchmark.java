@@ -3,14 +3,9 @@ package org.dbos.apiary.benchmarks.standalonetpcc;
 import com.mysql.cj.jdbc.MysqlDataSource;
 import org.dbos.apiary.benchmarks.standalonetpcc.procedures.*;
 import org.dbos.apiary.client.ApiaryWorkerClient;
-import org.dbos.apiary.mysql.MysqlConnection;
 import org.dbos.apiary.postgres.PostgresConnection;
-import org.dbos.apiary.utilities.ApiaryConfig;
 import org.dbos.apiary.utilities.Percentile;
-import org.dbos.apiary.worker.ApiaryNaiveScheduler;
-import org.dbos.apiary.worker.ApiaryWorker;
 import org.dbos.apiary.xa.*;
-import org.dbos.apiary.xa.procedures.GetApiaryClientID;
 import org.postgresql.ds.PGSimpleDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -219,10 +214,10 @@ public class TPCCBenchmark {
         threadPool.shutdown();
         threadPool.awaitTermination(10000, TimeUnit.SECONDS);
         logger.info("All queries finished! {}", System.currentTimeMillis() - startTime);
-        printPercentile(XDSTNewOrderFunction.p1, "XDSTNewOrderFunction.p1");
-        printPercentile(XDSTNewOrderFunction.p2, "XDSTNewOrderFunction.p2");
-        printPercentile(XDSTNewOrderFunction.p3, "XDSTNewOrderFunction.p3");
-        printPercentile(XDSTNewOrderFunction.p4, "XDSTNewOrderFunction.p4");
-        printPercentile(XDSTNewOrderFunction.p5, "XDSTNewOrderFunction.p5");
+        printPercentile(StandalonNewOrderFunction.p1, "XDSTNewOrderFunction.p1");
+        printPercentile(StandalonNewOrderFunction.p2, "XDSTNewOrderFunction.p2");
+        printPercentile(StandalonNewOrderFunction.p3, "XDSTNewOrderFunction.p3");
+        printPercentile(StandalonNewOrderFunction.p4, "XDSTNewOrderFunction.p4");
+        printPercentile(StandalonNewOrderFunction.p5, "XDSTNewOrderFunction.p5");
     }
 }

@@ -87,10 +87,12 @@ public class TPCCLoaderXDST {
         int numLoaders = 8;
         final CountDownLatch itemLatch = new CountDownLatch(numLoaders);
 
+
         // ITEM
         // The ITEM table will be fully loaded before any other table.
         // Because the ITEM table is large (100k items per the TPC-C spec),
         // we divide the ITEM table across the maximum number of loader threads.
+		LOG.info("start loading ITEM");
         for (int i = 1; i <= TPCCConfig.configItemCount;) {
             int numItemsPerLoader = TPCCConfig.configItemCount / numLoaders;
             int itemStartInclusive = i;
@@ -100,13 +102,14 @@ public class TPCCLoaderXDST {
 			threads.add(new LoaderThread(pgConn, "postgres") {
                 @Override
                 public void load(Connection conn) throws SQLException {
+					LOG.info("start loading ITEM ");
                     loadItems(conn, itemStartInclusive, itemEndInclusive);
                     itemLatch.countDown();
                 }
             });
             i = itemEndInclusive + 1;
         }
-        
+
         // WAREHOUSES
         // We use a separate thread per warehouse. Each thread will load 
         // all of the tables that depend on that warehouse. They all have
@@ -119,7 +122,7 @@ public class TPCCLoaderXDST {
             threads.add(new LoaderThread(rawConnection, "postgres") {
                 @Override
                 public void load(Connection conn) throws SQLException {
-					
+
                     // Make sure that we load the ITEM table first
                     try {
                         itemLatch.await();
@@ -128,6 +131,7 @@ public class TPCCLoaderXDST {
                         throw new RuntimeException(ex);
                     }
 
+					LOG.info("start loading WAREHOUSES");
 					if (LOG.isDebugEnabled()) LOG.debug("Starting to load WAREHOUSE " + w_id);
                     // WAREHOUSE
                     loadWarehouse(conn, w_id);

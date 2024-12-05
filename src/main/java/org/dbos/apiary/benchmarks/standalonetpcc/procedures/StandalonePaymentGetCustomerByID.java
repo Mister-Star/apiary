@@ -18,16 +18,16 @@ package org.dbos.apiary.benchmarks.standalonetpcc.procedures;
 
 import com.google.gson.Gson;
 import org.apache.log4j.Logger;
-import org.dbos.apiary.benchmarks.tpcc.TPCCConstants;
-import org.dbos.apiary.benchmarks.tpcc.TPCCLoader;
-import org.dbos.apiary.benchmarks.tpcc.TPCCUtil;
-import org.dbos.apiary.benchmarks.tpcc.pojo.Customer;
+import org.dbos.apiary.benchmarks.standalonetpcc.TPCCConstants;
+import org.dbos.apiary.benchmarks.standalonetpcc.TPCCLoader;
+import org.dbos.apiary.benchmarks.standalonetpcc.TPCCUtil;
+import org.dbos.apiary.benchmarks.standalonetpcc.pojo.Customer;
 import org.dbos.apiary.xa.XAFunction;
 
 import java.sql.ResultSet;
 
-public class XDSTPaymentGetCustomerByID extends XAFunction {
-    private static final Logger LOG = Logger.getLogger(XDSTPaymentGetCustomerByID.class);
+public class StandalonePaymentGetCustomerByID extends XAFunction {
+    private static final Logger LOG = Logger.getLogger(StandalonePaymentGetCustomerByID.class);
 
     public static String payGetCustSQL = 
             "SELECT * " +
