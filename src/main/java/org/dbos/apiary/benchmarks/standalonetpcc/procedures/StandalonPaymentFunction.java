@@ -104,6 +104,20 @@ public class StandalonPaymentFunction extends XAFunction {
             "   AND C_LAST = ? " +
             " ORDER BY C_FIRST";
 
+    public static String customerByNameSQL_function =
+            "SELECT *" +
+                    "  FROM " + org.dbos.apiary.benchmarks.tpcc.TPCCConstants.TABLENAME_CUSTOMER +
+                    " WHERE C_W_ID = ? " +
+                    "   AND C_D_ID = ? " +
+                    "   AND C_LAST = ? ";
+
+    public static String payGetCustSQL_function =
+            "SELECT * " +
+                    "  FROM " + org.dbos.apiary.benchmarks.tpcc.TPCCConstants.TABLENAME_CUSTOMER +
+                    " WHERE __apiaryid__ = ? and C_W_ID = ?";
+
+
+
 
     public static String getCustomerByName(org.dbos.apiary.postgres.PostgresContext context, int c_w_id, int c_d_id, String customerLastName) throws Exception {
         String customerWarehouseDBType = org.dbos.apiary.benchmarks.standalonetpcc.TPCCLoader.getDBType(c_w_id);
@@ -114,7 +128,7 @@ public class StandalonPaymentFunction extends XAFunction {
         // customerByName.setInt(2, c_d_id);
         // customerByName.setString(3, customerLastName);
         // ResultSet rs = customerByName.executeQuery();
-        ResultSet rs = context.executeQuery(customerByNameSQL, c_w_id, c_d_id, customerLastName);
+        ResultSet rs = context.executeQuery(customerByNameSQL_function, c_w_id, c_d_id, customerLastName);
         if (LOG.isTraceEnabled()) LOG.trace("C_LAST=" + customerLastName + " C_D_ID=" + c_d_id + " C_W_ID=" + c_w_id);
 
         while (rs.next()) {
@@ -144,7 +158,7 @@ public class StandalonPaymentFunction extends XAFunction {
     public static String getCustomerById(org.dbos.apiary.postgres.PostgresContext context, int c_w_id, int c_d_id, int c_id) throws Exception {
         String customerWarehouseDBType = org.dbos.apiary.benchmarks.standalonetpcc.TPCCLoader.getDBType(c_w_id);
         assert(customerWarehouseDBType.equals(TPCCConstants.DBTYPE_POSTGRES));
-        ResultSet rs = context.executeQuery(payGetCustSQL, org.dbos.apiary.benchmarks.standalonetpcc.TPCCUtil.makeApiaryId(org.dbos.apiary.benchmarks.standalonetpcc.TPCCConstants.TABLENAME_CUSTOMER, c_w_id, c_d_id, c_id), c_w_id);
+        ResultSet rs = context.executeQuery(payGetCustSQL_function, org.dbos.apiary.benchmarks.standalonetpcc.TPCCUtil.makeApiaryId(org.dbos.apiary.benchmarks.standalonetpcc.TPCCConstants.TABLENAME_CUSTOMER, c_w_id, c_d_id, c_id), c_w_id);
         if (!rs.next()) {
             throw new RuntimeException("C_ID=" + c_id + " C_D_ID=" + c_d_id + " C_W_ID=" + c_w_id + " not found!");
         }
