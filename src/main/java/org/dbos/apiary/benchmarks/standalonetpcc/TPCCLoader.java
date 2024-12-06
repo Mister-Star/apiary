@@ -91,7 +91,7 @@ public class TPCCLoader {
             int numItemsPerLoader = TPCCConfig.configItemCount / numLoaders;
             int itemStartInclusive = i;
             int itemEndInclusive = Math.min(TPCCConfig.configItemCount, itemStartInclusive + numItemsPerLoader - 1);
-			threads.add(new LoaderThread(PostgresConnection.getNewConnection(), "postgres") {
+			threads.add(new LoaderThread(PostgresConnection.getNewConnection(), "TPCC") {
                 @Override
                 public void load(Connection conn) throws SQLException {
                     loadItems(conn, itemStartInclusive, itemEndInclusive);
@@ -109,7 +109,7 @@ public class TPCCLoader {
             final int w_id = w;
 			Connection rawConnection = null;
 			rawConnection = PostgresConnection.getNewConnection();
-            threads.add(new LoaderThread(rawConnection, "postgres") {
+            threads.add(new LoaderThread(rawConnection, "TPCC") {
                 @Override
                 public void load(Connection conn) throws SQLException {
                     // Make sure that we load the ITEM table first

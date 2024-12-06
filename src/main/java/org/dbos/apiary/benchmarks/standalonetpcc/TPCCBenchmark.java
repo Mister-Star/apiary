@@ -67,7 +67,7 @@ public class TPCCBenchmark {
 
         PostgresConnection pconn;
         try {
-            pconn = new PostgresConnection(conf.getDBAddressPG(), XAConfig.postgresPort, conf.getDBName(), "postgres", "postgres");
+            pconn = new PostgresConnection(conf.getDBAddressPG(), XAConfig.postgresPort, conf.getDBName(), "postgres", "dbos");
         } catch (Exception e) {
             logger.info("No MySQL/Postgres instance! {}", e.getMessage());
             return;
