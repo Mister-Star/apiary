@@ -47,7 +47,7 @@ import java.util.concurrent.CountDownLatch;
 /**
  * TPC-C Benchmark Loader
  */
-public class drop TPCCLoader {
+public class TPCCLoader {
     private static final Logger LOG = Logger.getLogger(TPCCLoader.class);
 	private final WorkloadConfiguration conf;
 	private final Random rng = new Random();
