@@ -18,6 +18,7 @@ package org.dbos.apiary.benchmarks.standalonetpcc.procedures;
 
 import org.apache.log4j.Logger;
 import org.dbos.apiary.benchmarks.standalonetpcc.*;
+import org.dbos.apiary.postgres.PostgresConnection;
 import org.dbos.apiary.utilities.Percentile;
 import org.dbos.apiary.xa.XAFunction;
 
@@ -25,10 +26,6 @@ import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-
-import static org.dbos.apiary.benchmarks.standalonetpcc.procedures.StandaloneResultOutputAndClear.addPaymentTime;
-import static org.dbos.apiary.benchmarks.standalonetpcc.procedures.StandaloneResultOutputAndClear.addTransactionTime;
-
 
 public class StandaloneNewOrderFunction extends XAFunction {
     private static final Logger LOG = Logger.getLogger(StandaloneNewOrderFunction.class);
@@ -423,9 +420,7 @@ public class StandaloneNewOrderFunction extends XAFunction {
 		}
 
 		long elapsedTime = (System.currentTimeMillis() - startTime);
-		addPaymentTime(elapsedTime);
-		addTransactionTime(elapsedTime);
-
+		PostgresConnection.newOrderTimes.add(elapsedTime);
         return 0;
     }
 

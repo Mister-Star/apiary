@@ -2,7 +2,6 @@ package org.dbos.apiary.benchmarks.standalonetpcc;
 
 import org.dbos.apiary.benchmarks.standalonetpcc.procedures.StandaloneNewOrderFunction;
 import org.dbos.apiary.benchmarks.standalonetpcc.procedures.StandalonePaymentFunction;
-import org.dbos.apiary.benchmarks.standalonetpcc.procedures.StandaloneResultOutputAndClear;
 import org.dbos.apiary.postgres.PostgresConnection;
 import org.dbos.apiary.utilities.ApiaryConfig;
 import org.dbos.apiary.worker.ApiaryNaiveScheduler;
@@ -63,9 +62,6 @@ public class BenchmarkingExecutableServer {
         apiaryWorker.registerConnection(XAConfig.postgres, conn);
         apiaryWorker.registerFunction("StandalonePaymentFunction", XAConfig.postgres, StandalonePaymentFunction::new);
         apiaryWorker.registerFunction("StandaloneNewOrderFunction", XAConfig.postgres, StandaloneNewOrderFunction::new);
-        apiaryWorker.registerFunction("StandaloneResultOutputAndClear", XAConfig.postgres, StandaloneResultOutputAndClear::new);
-
-
 
         apiaryWorker.startServing();
 

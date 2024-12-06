@@ -76,13 +76,6 @@ public class TPCCBenchmark {
         logger.info("Init clients num {} server ip {}", threadNum, mainHostAddr);
         ThreadLocal<ApiaryWorkerClient> client = ThreadLocal.withInitial(() -> new ApiaryWorkerClient(mainHostAddr));
 
-        try {
-            client.get().executeFunction("StandaloneResultOutputAndClear", 1, threadNum);
-        }
-        catch (Exception e) {
-            logger.info("Server StandaloneResultOutputAndClear Error");
-        }
-
         ExecutorService threadPool = Executors.newFixedThreadPool(threadNum);
         long startTime = System.currentTimeMillis();
         long endTime = startTime + (duration * 1000);
@@ -169,13 +162,6 @@ public class TPCCBenchmark {
         }
 
         stopped.set(true);
-
-        try {
-            client.get().executeFunction("StandaloneResultOutputAndClear", elapsedTime, threadNum);
-        }
-        catch (Exception e) {
-            logger.info("Server StandaloneResultOutputAndClear Error");
-        }
 
         threadPool.shutdown();
 

@@ -18,9 +18,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.sql.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.stream.Collectors;
 
 /**
  * A connection to a Postgres database.
@@ -36,6 +39,64 @@ public class PostgresConnection implements ApiaryConnection {
     private final Set<TransactionContext> abortedTransactions = ConcurrentHashMap.newKeySet();
     private TransactionContext latestTransactionContext;
     public Tracer tracer = null;
+
+
+    public static final Collection<Long> paymentTimes = new ConcurrentLinkedQueue<>();
+    public static final Collection<Long> newOrderTimes = new ConcurrentLinkedQueue<>();
+    public static final Collection<Long> transactionTimes = new ConcurrentLinkedQueue<>();
+    public static final AtomicInteger totalTaskNum = new AtomicInteger(0);
+
+    int Output() throws Exception {
+        totalTaskNum.incrementAndGet();
+        if(totalTaskNum.get() < 1000) {
+            return 0;
+        }
+
+        logger.info("=============================================================");
+        logger.info("====================Server Side Info=========================");
+        logger.info("=============================================================");
+
+        List<Long> queryTimes = newOrderTimes.stream().map(i -> i / 1000).sorted().collect(Collectors.toList());
+        int numQueries = queryTimes.size();
+        if (numQueries > 0) {
+            long average = queryTimes.stream().mapToLong(i -> i).sum() / numQueries;
+            long p50 = queryTimes.get(numQueries / 2);
+            long p99 = queryTimes.get((numQueries * 99) / 100);
+            logger.info("New order transactions: Queries: {} Average: {}μs p50: {}μs p99: {}μs", numQueries, average, p50, p99);
+        } else {
+            logger.info("No new order transactions");
+        }
+
+        queryTimes = paymentTimes.stream().map(i -> i / 1000).sorted().collect(Collectors.toList());
+        numQueries = queryTimes.size();
+        if (numQueries > 0) {
+            long average = queryTimes.stream().mapToLong(i -> i).sum() / numQueries;
+            long p50 = queryTimes.get(numQueries / 2);
+            long p99 = queryTimes.get((numQueries * 99) / 100);
+            logger.info("Payment transactions: Queries: {} Average: {}μs p50: {}μs p99: {}μs", numQueries, average, p50, p99);
+        } else {
+            logger.info("No payment transactions");
+        }
+
+        queryTimes = transactionTimes.stream().map(i -> i / 1000).sorted().collect(Collectors.toList());
+        numQueries = transactionTimes.size();
+        if (numQueries > 0) {
+            long average = queryTimes.stream().mapToLong(i -> i).sum() / numQueries;
+            long p50 = queryTimes.get(numQueries / 2);
+            long p99 = queryTimes.get((numQueries * 99) / 100);
+            logger.info("Total Operations:Queries: {} Average: {}μs p50: {}μs p99: {}μs", numQueries, average, p50, p99);
+        }
+
+        paymentTimes.clear();
+        newOrderTimes.clear();
+        transactionTimes.clear();
+
+        logger.info("=============================================================");
+        logger.info("==========================End================================");
+        logger.info("=============================================================");
+
+        return 0;
+    }
 
     public void setTracer(Tracer tracer) {
         this.tracer = tracer;
@@ -171,6 +232,7 @@ public class PostgresConnection implements ApiaryConnection {
     @Override
     public FunctionOutput callFunction(String functionName, WorkerContext workerContext, String service, long execID,
                                        long functionID, boolean isReplay, Object... inputs) {
+        long startTime = System.currentTimeMillis();
         Connection c = connection.get();
         FunctionOutput f = null;
         AtomicLong totalTime = new AtomicLong(0);
@@ -214,6 +276,9 @@ public class PostgresConnection implements ApiaryConnection {
                             }
                             activeTransactions.remove(ctxt.txc);
                             succeededCtx = ctxt;
+                            long elapsedTime = (System.currentTimeMillis() - startTime);
+                            transactionTimes.add(elapsedTime);
+                            Output();
                             break;
                         } else {
                             rollback(ctxt);
