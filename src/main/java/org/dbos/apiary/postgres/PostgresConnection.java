@@ -1,5 +1,6 @@
 package org.dbos.apiary.postgres;
 
+import org.dbos.apiary.benchmarks.standalonetpcc.BenchmarkingExecutableServer;
 import org.dbos.apiary.connection.ApiaryConnection;
 import org.dbos.apiary.function.FunctionOutput;
 import org.dbos.apiary.function.ProvenanceBuffer;
@@ -39,59 +40,6 @@ public class PostgresConnection implements ApiaryConnection {
     private final Set<TransactionContext> abortedTransactions = ConcurrentHashMap.newKeySet();
     private TransactionContext latestTransactionContext;
     public Tracer tracer = null;
-
-
-    public static final Collection<Long> paymentTimes = new ConcurrentLinkedQueue<>();
-    public static final Collection<Long> newOrderTimes = new ConcurrentLinkedQueue<>();
-    public static final Collection<Long> transactionTimes = new ConcurrentLinkedQueue<>();
-
-    public static int Output() throws Exception {
-
-        logger.info("=============================================================");
-        logger.info("====================Server Side Info=========================");
-        logger.info("=============================================================");
-
-        List<Long> queryTimes = newOrderTimes.stream().map(i -> i / 1000).sorted().collect(Collectors.toList());
-        int numQueries = queryTimes.size();
-        if (numQueries > 0) {
-            long average = queryTimes.stream().mapToLong(i -> i).sum() / numQueries;
-            long p50 = queryTimes.get(numQueries / 2);
-            long p99 = queryTimes.get((numQueries * 99) / 100);
-            logger.info("New order transactions: Queries: {} Average: {}μs p50: {}μs p99: {}μs", numQueries, average, p50, p99);
-        } else {
-            logger.info("No new order transactions");
-        }
-
-        queryTimes = paymentTimes.stream().map(i -> i / 1000).sorted().collect(Collectors.toList());
-        numQueries = queryTimes.size();
-        if (numQueries > 0) {
-            long average = queryTimes.stream().mapToLong(i -> i).sum() / numQueries;
-            long p50 = queryTimes.get(numQueries / 2);
-            long p99 = queryTimes.get((numQueries * 99) / 100);
-            logger.info("Payment transactions: Queries: {} Average: {}μs p50: {}μs p99: {}μs", numQueries, average, p50, p99);
-        } else {
-            logger.info("No payment transactions");
-        }
-
-        queryTimes = transactionTimes.stream().map(i -> i / 1000).sorted().collect(Collectors.toList());
-        numQueries = transactionTimes.size();
-        if (numQueries > 0) {
-            long average = queryTimes.stream().mapToLong(i -> i).sum() / numQueries;
-            long p50 = queryTimes.get(numQueries / 2);
-            long p99 = queryTimes.get((numQueries * 99) / 100);
-            logger.info("Total Operations:Queries: {} Average: {}μs p50: {}μs p99: {}μs", numQueries, average, p50, p99);
-        }
-
-        paymentTimes.clear();
-        newOrderTimes.clear();
-        transactionTimes.clear();
-
-        logger.info("=============================================================");
-        logger.info("==========================End================================");
-        logger.info("=============================================================");
-
-        return 0;
-    }
 
     public void setTracer(Tracer tracer) {
         this.tracer = tracer;
@@ -272,7 +220,7 @@ public class PostgresConnection implements ApiaryConnection {
                             activeTransactions.remove(ctxt.txc);
                             succeededCtx = ctxt;
                             long elapsedTime = (System.currentTimeMillis() - startTime);
-                            transactionTimes.add(elapsedTime);
+                            BenchmarkingExecutableServer.transactionTimes.add(elapsedTime);
                             logger.info("Txn execution total time {}", elapsedTime);
                             break;
                         } else {

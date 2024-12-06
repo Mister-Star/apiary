@@ -12,8 +12,63 @@ import org.dbos.apiary.xa.XAConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.stream.Collectors;
+
 public class BenchmarkingExecutableServer {
     private static final Logger logger = LoggerFactory.getLogger(BenchmarkingExecutableServer.class);
+
+
+    public static final Collection<Long> paymentTimes = new ConcurrentLinkedQueue<>();
+    public static final Collection<Long> newOrderTimes = new ConcurrentLinkedQueue<>();
+    public static final Collection<Long> transactionTimes = new ConcurrentLinkedQueue<>();
+
+
+    public static int Output() throws Exception {
+
+        logger.info("=============================================================");
+        logger.info("====================Server Side Info=========================");
+        logger.info("=============================================================");
+
+        List<Long> queryTimes = newOrderTimes.stream().map(i -> i / 1000).sorted().collect(Collectors.toList());
+        int numQueries = queryTimes.size();
+        if (numQueries > 0) {
+            long average = queryTimes.stream().mapToLong(i -> i).sum() / numQueries;
+            long p50 = queryTimes.get(numQueries / 2);
+            long p99 = queryTimes.get((numQueries * 99) / 100);
+            logger.info("New order transactions: Queries: {} Average: {}μs p50: {}μs p99: {}μs", numQueries, average, p50, p99);
+        } else {
+            logger.info("No new order transactions");
+        }
+
+        queryTimes = paymentTimes.stream().map(i -> i / 1000).sorted().collect(Collectors.toList());
+        numQueries = queryTimes.size();
+        if (numQueries > 0) {
+            long average = queryTimes.stream().mapToLong(i -> i).sum() / numQueries;
+            long p50 = queryTimes.get(numQueries / 2);
+            long p99 = queryTimes.get((numQueries * 99) / 100);
+            logger.info("Payment transactions: Queries: {} Average: {}μs p50: {}μs p99: {}μs", numQueries, average, p50, p99);
+        } else {
+            logger.info("No payment transactions");
+        }
+
+        queryTimes = transactionTimes.stream().map(i -> i / 1000).sorted().collect(Collectors.toList());
+        numQueries = transactionTimes.size();
+        if (numQueries > 0) {
+            long average = queryTimes.stream().mapToLong(i -> i).sum() / numQueries;
+            long p50 = queryTimes.get(numQueries / 2);
+            long p99 = queryTimes.get((numQueries * 99) / 100);
+            logger.info("Total Operations:Queries: {} Average: {}μs p50: {}μs p99: {}μs", numQueries, average, p50, p99);
+        }
+
+        logger.info("=============================================================");
+        logger.info("==========================End================================");
+        logger.info("=============================================================");
+
+        return 0;
+    }
 
     public static void main(String[] args) throws Exception {
         logger.info("Starting Apiary worker server. XDB transactions: {} Isolation level: {}",
@@ -68,7 +123,7 @@ public class BenchmarkingExecutableServer {
         logger.info("apiaryWorker Start!");
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
-                PostgresConnection.Output();
+                Output();
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

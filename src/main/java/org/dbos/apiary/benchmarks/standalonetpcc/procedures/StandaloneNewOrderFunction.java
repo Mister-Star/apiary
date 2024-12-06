@@ -422,7 +422,7 @@ public class StandaloneNewOrderFunction extends XAFunction {
 		}
 
 		long elapsedTime = (System.currentTimeMillis() - startTime);
-		PostgresConnection.newOrderTimes.add(elapsedTime);
+		BenchmarkingExecutableServer.newOrderTimes.add(elapsedTime);
 		logger.info("PaymentTxn execution time {}", elapsedTime);
         return 0;
     }

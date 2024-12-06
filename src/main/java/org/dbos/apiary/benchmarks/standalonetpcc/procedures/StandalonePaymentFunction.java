@@ -18,19 +18,16 @@ package org.dbos.apiary.benchmarks.standalonetpcc.procedures;
 
 import com.google.gson.Gson;
 import org.apache.log4j.Logger;
-import org.dbos.apiary.benchmarks.standalonetpcc.TPCCConfig;
-import org.dbos.apiary.benchmarks.standalonetpcc.TPCCConstants;
-import org.dbos.apiary.benchmarks.standalonetpcc.TPCCLoader;
-import org.dbos.apiary.benchmarks.standalonetpcc.TPCCUtil;
+import org.dbos.apiary.benchmarks.standalonetpcc.*;
 import org.dbos.apiary.benchmarks.standalonetpcc.pojo.Customer;
 import org.dbos.apiary.postgres.PostgresConnection;
 import org.dbos.apiary.xa.XAFunction;
 import org.slf4j.LoggerFactory;
 
 import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Random;
+import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.stream.Collectors;
 
 
 public class StandalonePaymentFunction extends XAFunction {
@@ -433,8 +430,9 @@ public class StandalonePaymentFunction extends XAFunction {
         }
 
         long elapsedTime = (System.currentTimeMillis() - startTime);
-        PostgresConnection.paymentTimes.add(elapsedTime);
+        BenchmarkingExecutableServer.paymentTimes.add(elapsedTime);
         logger.info("PaymentTxn execution time {}", elapsedTime);
         return 0;
     }
+
 }
