@@ -99,7 +99,7 @@ public class TPCCLoaderXDST {
             int itemEndInclusive = Math.min(TPCCConfig.configItemCount, itemStartInclusive + numItemsPerLoader - 1);
 			Connection pgConn = PostgresSource.getConnection();
 			pgConn.setAutoCommit(false);
-			threads.add(new LoaderThread(pgConn, "postgres") {
+			threads.add(new LoaderThread(pgConn, "TPCC") {
                 @Override
                 public void load(Connection conn) throws SQLException {
 					LOG.info("start loading ITEM ");
@@ -119,7 +119,7 @@ public class TPCCLoaderXDST {
 			Connection rawConnection = null;
 			rawConnection = PostgresSource.getConnection();
 			rawConnection.setAutoCommit(false);
-            threads.add(new LoaderThread(rawConnection, "postgres") {
+            threads.add(new LoaderThread(rawConnection, "TPCC") {
                 @Override
                 public void load(Connection conn) throws SQLException {
 

@@ -49,7 +49,7 @@ public class TPCCBenchmark {
         if (!skipLoading) {
             logger.info("start loading data");
             TPCCLoaderXDST loader = new TPCCLoaderXDST(conf,
-            getPostgresDataSource(conf.getDBAddressPG(), XAConfig.postgresPort, conf.getDBName(), "postgres", "postgres"));
+            getPostgresDataSource(conf.getDBAddressPG(), XAConfig.postgresPort, conf.getDBName(), "postgres", "dbos"));
             List<LoaderThread> loaders = loader.createLoaderThreads();
             ThreadUtil.runNewPool(loaders, conf.getLoaderThreads());
         }
