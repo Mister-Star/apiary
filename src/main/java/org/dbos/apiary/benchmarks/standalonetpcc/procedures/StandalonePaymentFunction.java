@@ -30,8 +30,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
 
-public class StandalonPaymentFunction extends XAFunction {
-    private static final Logger LOG = Logger.getLogger(StandalonPaymentFunction.class);
+import static org.dbos.apiary.benchmarks.standalonetpcc.procedures.StandaloneResultOutputAndClear.addPaymentTime;
+import static org.dbos.apiary.benchmarks.standalonetpcc.procedures.StandaloneResultOutputAndClear.addTransactionTime;
+
+public class StandalonePaymentFunction extends XAFunction {
+    private static final Logger LOG = Logger.getLogger(StandalonePaymentFunction.class);
     private static Random gen = new Random();
 
     public static String payUpdateWhseSQL = 
@@ -181,6 +184,8 @@ public class StandalonPaymentFunction extends XAFunction {
         // customerByName = this.getPreparedStatement(conn, customerByNameSQL);
 
         // payUpdateWhse =this.getPreparedStatement(conn, payUpdateWhseSQL);
+
+        long startTime = System.currentTimeMillis();
 
         int districtID = TPCCUtil.randomNumber(1, TPCCConfig.configDistPerWhse, gen);
         int customerID = TPCCUtil.getCustomerID(gen);
@@ -425,6 +430,9 @@ public class StandalonPaymentFunction extends XAFunction {
             LOG.trace(terminalMessage.toString());
         }
 
+        long elapsedTime = (System.currentTimeMillis() - startTime);
+        addPaymentTime(elapsedTime);
+        addTransactionTime(elapsedTime);
         return 0;
     }
 }

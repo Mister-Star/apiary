@@ -221,7 +221,6 @@ public class PostgresConnection implements ApiaryConnection {
                     } catch (Exception e) {
                         throw e;
                     }
-
                 } catch (Exception e) {
                     if (e instanceof InvocationTargetException) {
                         Throwable innerException = e;

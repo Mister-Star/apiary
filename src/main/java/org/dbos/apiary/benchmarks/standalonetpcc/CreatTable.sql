@@ -1,23 +1,20 @@
-drop table config;
-drop table new_order;
-drop table order_line;
-drop table oorder;
-drop table history;
-drop table customer;
-drop table stock;
-drop table item;
-drop table district;
-drop table warehouse;
-drop sequence hist_id_seq;
+drop table CONFIG;
+drop table NEW_ORDER;
+drop table ORDER_LINE;
+drop table OORDER;
+drop table HISTORY;
+drop table CUSTOMER;
+drop table STOCK;
+drop table ITEM;
+drop table DISTRICT;
+drop table WAREHOUSE;
 
-
-
-create table config (
+create table CONFIG (
                               cfg_name    varchar(30) primary key,
                               cfg_value   varchar(50)
 );
 
-create table warehouse (
+create table WAREHOUSE (
                                 __apiaryID__ varchar(100) primary key,
                                 w_id        integer   not null,
                                  w_ytd       decimal(12,2),
@@ -30,7 +27,7 @@ create table warehouse (
                                  w_zip       char(9)
 );
 
-create table district (
+create table DISTRICT (
                                 __apiaryID__ varchar(100) primary key,
                                 d_w_id       integer       not null,
                                 d_id         integer       not null,
@@ -45,7 +42,7 @@ create table district (
                                 d_zip        char(9)
 );
 
-create table customer (
+create table CUSTOMER (
                           __apiaryID__ varchar(100) primary key,
                                 c_w_id         integer        not null,
                                 c_d_id         integer        not null,
@@ -70,9 +67,7 @@ create table customer (
                                 c_data         varchar(500)
 );
 
-create sequence hist_id_seq;
-
-create table history (
+create table HISTORY (
                          __apiaryID__ varchar(100) primary key,
                                hist_id  integer,
                                h_c_id   integer,
@@ -85,14 +80,14 @@ create table history (
                                h_data   varchar(24)
 );
 
-create table new_order (
+create table NEW_ORDER (
                            __apiaryID__ varchar(100) primary key,
                                  no_w_id  integer   not null,
                                  no_d_id  integer   not null,
                                  no_o_id  integer   not null
 );
 
-create table oorder (
+create table OORDER (
                         __apiaryID__ varchar(100) primary key,
                               o_w_id       integer      not null,
                               o_d_id       integer      not null,
@@ -104,7 +99,7 @@ create table oorder (
                               o_entry_d    timestamp
 );
 
-create table order_line (
+create table ORDER_LINE (
                             __apiaryID__ varchar(100) primary key,
                                   ol_w_id         integer   not null,
                                   ol_d_id         integer   not null,
@@ -118,7 +113,7 @@ create table order_line (
                                   ol_dist_info    char(24)
 );
 
-create table item (
+create table ITEM (
                       __apiaryID__ varchar(100) primary key,
                             i_id     integer      not null,
                             i_name   varchar(24),
@@ -127,7 +122,7 @@ create table item (
                             i_im_id  integer
 );
 
-create table stock (
+create table STOCK (
                        __apiaryID__ varchar(100) primary key,
                              s_w_id       integer       not null,
                              s_i_id       integer       not null,
@@ -147,3 +142,5 @@ create table stock (
                              s_dist_09    char(24),
                              s_dist_10    char(24)
 );
+
+

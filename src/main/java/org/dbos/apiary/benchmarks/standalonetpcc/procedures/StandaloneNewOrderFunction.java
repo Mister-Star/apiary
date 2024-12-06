@@ -26,9 +26,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import static org.dbos.apiary.benchmarks.standalonetpcc.procedures.StandaloneResultOutputAndClear.addPaymentTime;
+import static org.dbos.apiary.benchmarks.standalonetpcc.procedures.StandaloneResultOutputAndClear.addTransactionTime;
 
-public class StandalonNewOrderFunction extends XAFunction {
-    private static final Logger LOG = Logger.getLogger(StandalonNewOrderFunction.class);
+
+public class StandaloneNewOrderFunction extends XAFunction {
+    private static final Logger LOG = Logger.getLogger(StandaloneNewOrderFunction.class);
     private static Random gen = new Random();
 	public static Percentile p1 = new Percentile(); 
 	public static Percentile p2 = new Percentile(); 
@@ -226,6 +229,9 @@ public class StandalonNewOrderFunction extends XAFunction {
 
     public static int runFunction(org.dbos.apiary.postgres.PostgresContext context, int terminalWarehouseID, int numWarehouses) throws Exception {
         long t0 = System.nanoTime();
+
+		long startTime = System.currentTimeMillis();
+
 		int districtID = TPCCUtil.randomNumber(1, TPCCConfig.configDistPerWhse, gen);
         int customerID = TPCCUtil.getCustomerID(gen);
         int numItems = (int) TPCCUtil.randomNumber(5, 15, gen);
@@ -415,6 +421,11 @@ public class StandalonNewOrderFunction extends XAFunction {
 		    LOG.debug("Caught an expected error in New Order");
 		    throw userEx;
 		}
+
+		long elapsedTime = (System.currentTimeMillis() - startTime);
+		addPaymentTime(elapsedTime);
+		addTransactionTime(elapsedTime);
+
         return 0;
     }
 

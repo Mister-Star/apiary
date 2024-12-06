@@ -1,5 +1,6 @@
 package org.dbos.apiary.benchmarks.standalonetpcc;
 
+import com.google.protobuf.InvalidProtocolBufferException;
 import com.mysql.cj.jdbc.MysqlDataSource;
 import org.dbos.apiary.benchmarks.standalonetpcc.procedures.*;
 import org.dbos.apiary.client.ApiaryWorkerClient;
@@ -43,7 +44,7 @@ public class TPCCBenchmark {
         return ds;
     }
 
-    public static void benchmark(WorkloadConfiguration conf, String transactionManager, int threadNum, String mainHostAddr, Integer interval, Integer duration, int percentageNewOrder, boolean mysqlDelayLogFlush, boolean skipLoading, boolean skipBench) throws SQLException, InterruptedException {
+    public static void benchmark(WorkloadConfiguration conf, String transactionManager, int threadNum, String mainHostAddr, Integer interval, Integer duration, int percentageNewOrder, boolean mysqlDelayLogFlush, boolean skipLoading, boolean skipBench) throws SQLException, InterruptedException, InvalidProtocolBufferException {
         logger.info("TPCC benchmark start");
         if (!skipLoading) {
             logger.info("start loading data");
@@ -75,6 +76,13 @@ public class TPCCBenchmark {
         logger.info("Init clients num {} server ip {}", threadNum, mainHostAddr);
         ThreadLocal<ApiaryWorkerClient> client = ThreadLocal.withInitial(() -> new ApiaryWorkerClient(mainHostAddr));
 
+        try {
+            client.get().executeFunction("StandaloneResultOutputAndClear", 1, threadNum);
+        }
+        catch (Exception e) {
+            logger.info("Server StandaloneResultOutputAndClear Error");
+        }
+
         ExecutorService threadPool = Executors.newFixedThreadPool(threadNum);
         long startTime = System.currentTimeMillis();
         long endTime = startTime + (duration * 1000);
@@ -93,10 +101,10 @@ public class TPCCBenchmark {
                 int warehouseId = ThreadLocalRandom.current().nextInt(conf.getNumWarehouses()) + 1;
                 long t0 = System.nanoTime();
                 if (chooser < percentageNewOrder) {
-                    client.get().executeFunction("StandaloneNewOrderFunction", warehouseId, conf.getNumWarehouses()).getInt();
+                    client.get().executeFunction("StandaloneNewOrderFunction", warehouseId, conf.getNumWarehouses());
                     newOrderTimes.add(System.nanoTime() - t0);
                 } else {
-                    client.get().executeFunction("StandalonePaymentFunction", warehouseId, conf.getNumWarehouses()).getInt();
+                    client.get().executeFunction("StandalonePaymentFunction", warehouseId, conf.getNumWarehouses());
                     paymentTimes.add(System.nanoTime() - t0);
                 }
                 transactionTimes.add(System.nanoTime() - t0);
@@ -160,8 +168,18 @@ public class TPCCBenchmark {
             long p99 = queryTimes.get((numQueries * 99) / 100);
             logger.info("Total Operations: Duration: {} ClientNum: {} Queries: {} TPS: {} Average: {}μs p50: {}μs p99: {}μs", elapsedTime, threadNum, numQueries, String.format("%.03f", throughput), average, p50, p99);
         }
+
         stopped.set(true);
+
+        try {
+            client.get().executeFunction("StandaloneResultOutputAndClear", elapsedTime, threadNum);
+        }
+        catch (Exception e) {
+            logger.info("Server StandaloneResultOutputAndClear Error");
+        }
+
         threadPool.shutdown();
+
         threadPool.awaitTermination(10000, TimeUnit.SECONDS);
         logger.info("All queries finished! {}", System.currentTimeMillis() - startTime);
     }
