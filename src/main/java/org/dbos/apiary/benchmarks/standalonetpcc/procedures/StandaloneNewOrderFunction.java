@@ -21,6 +21,7 @@ import org.dbos.apiary.benchmarks.standalonetpcc.*;
 import org.dbos.apiary.postgres.PostgresConnection;
 import org.dbos.apiary.utilities.Percentile;
 import org.dbos.apiary.xa.XAFunction;
+import org.slf4j.LoggerFactory;
 
 import java.sql.ResultSet;
 import java.util.HashMap;
@@ -29,6 +30,7 @@ import java.util.Random;
 
 public class StandaloneNewOrderFunction extends XAFunction {
     private static final Logger LOG = Logger.getLogger(StandaloneNewOrderFunction.class);
+	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(PostgresConnection.class);
     private static Random gen = new Random();
 	public static Percentile p1 = new Percentile(); 
 	public static Percentile p2 = new Percentile(); 
@@ -421,6 +423,7 @@ public class StandaloneNewOrderFunction extends XAFunction {
 
 		long elapsedTime = (System.currentTimeMillis() - startTime);
 		PostgresConnection.newOrderTimes.add(elapsedTime);
+		logger.info("PaymentTxn execution time {}", elapsedTime);
         return 0;
     }
 

@@ -67,12 +67,16 @@ public class BenchmarkingExecutableServer {
 
         logger.info("apiaryWorker Start!");
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-        System.err.println("Stopping Apiary worker server.");
+            try {
+                PostgresConnection.Output();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            System.err.println("Stopping Apiary worker server.");
         apiaryWorker.shutdown();
         }));
         Thread.sleep(Long.MAX_VALUE);
         apiaryWorker.shutdown();
-
 
     }
 }

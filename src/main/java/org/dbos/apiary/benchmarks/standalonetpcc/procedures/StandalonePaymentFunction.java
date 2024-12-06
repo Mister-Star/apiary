@@ -25,6 +25,7 @@ import org.dbos.apiary.benchmarks.standalonetpcc.TPCCUtil;
 import org.dbos.apiary.benchmarks.standalonetpcc.pojo.Customer;
 import org.dbos.apiary.postgres.PostgresConnection;
 import org.dbos.apiary.xa.XAFunction;
+import org.slf4j.LoggerFactory;
 
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -34,6 +35,8 @@ import java.util.Random;
 
 public class StandalonePaymentFunction extends XAFunction {
     private static final Logger LOG = Logger.getLogger(StandalonePaymentFunction.class);
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(PostgresConnection.class);
+
     private static Random gen = new Random();
 
     public static String payUpdateWhseSQL = 
@@ -431,6 +434,7 @@ public class StandalonePaymentFunction extends XAFunction {
 
         long elapsedTime = (System.currentTimeMillis() - startTime);
         PostgresConnection.paymentTimes.add(elapsedTime);
+        logger.info("PaymentTxn execution time {}", elapsedTime);
         return 0;
     }
 }

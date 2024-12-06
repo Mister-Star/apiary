@@ -44,13 +44,8 @@ public class PostgresConnection implements ApiaryConnection {
     public static final Collection<Long> paymentTimes = new ConcurrentLinkedQueue<>();
     public static final Collection<Long> newOrderTimes = new ConcurrentLinkedQueue<>();
     public static final Collection<Long> transactionTimes = new ConcurrentLinkedQueue<>();
-    public static final AtomicInteger totalTaskNum = new AtomicInteger(0);
 
-    int Output() throws Exception {
-        totalTaskNum.incrementAndGet();
-        if(totalTaskNum.get() < 1000) {
-            return 0;
-        }
+    public static int Output() throws Exception {
 
         logger.info("=============================================================");
         logger.info("====================Server Side Info=========================");
@@ -278,7 +273,7 @@ public class PostgresConnection implements ApiaryConnection {
                             succeededCtx = ctxt;
                             long elapsedTime = (System.currentTimeMillis() - startTime);
                             transactionTimes.add(elapsedTime);
-                            Output();
+                            logger.info("Txn execution total time {}", elapsedTime);
                             break;
                         } else {
                             rollback(ctxt);
