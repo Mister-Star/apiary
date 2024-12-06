@@ -36,6 +36,10 @@ public class StandaloneResultOutputAndClear extends XAFunction {
 
     public static int runFunction(org.dbos.apiary.postgres.PostgresContext context, int elapsedTime, int threadNum) throws Exception {
 
+        logger.info("=============================================================");
+        logger.info("====================Server Side Info=========================");
+        logger.info("=============================================================");
+
         List<Long> queryTimes = newOrderTimes.stream().map(i -> i / 1000).sorted().collect(Collectors.toList());
         int numQueries = queryTimes.size();
         if (numQueries > 0) {
@@ -73,6 +77,10 @@ public class StandaloneResultOutputAndClear extends XAFunction {
         logger.info("=============================================================");
         logger.info("==========================End================================");
         logger.info("=============================================================");
+
+        paymentTimes.clear();
+        newOrderTimes.clear();
+        transactionTimes.clear();
 
         return 0;
     }

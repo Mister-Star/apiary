@@ -126,7 +126,6 @@ public class TPCCBenchmark {
             }
             currentTime = System.currentTimeMillis();
         }
-        warmed.set(false);
         long elapsedTime = (System.currentTimeMillis() - startTime);
 
         if (success.get()) {
