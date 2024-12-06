@@ -18,6 +18,7 @@ package org.dbos.apiary.benchmarks.standalonetpcc.procedures;
 
 import org.apache.log4j.Logger;
 import org.dbos.apiary.benchmarks.standalonetpcc.TPCCBenchmark;
+import org.dbos.apiary.benchmarks.standalonetpcc.TPCCConstants;
 import org.dbos.apiary.utilities.Percentile;
 import org.dbos.apiary.xa.XAFunction;
 import org.slf4j.LoggerFactory;
@@ -34,7 +35,12 @@ public class StandaloneResultOutputAndClear extends XAFunction {
     private static final Collection<Long> newOrderTimes = new ConcurrentLinkedQueue<>();
     private static final Collection<Long> transactionTimes = new ConcurrentLinkedQueue<>();
 
+
+    public static String selectWarehouse = "SELECT COUNT(*) AS warehouse_count FROM warehouse;";
+
     public static int runFunction(org.dbos.apiary.postgres.PostgresContext context, int elapsedTime, int threadNum) throws Exception {
+
+        context.executeQuery(selectWarehouse);
 
         logger.info("=============================================================");
         logger.info("====================Server Side Info=========================");
