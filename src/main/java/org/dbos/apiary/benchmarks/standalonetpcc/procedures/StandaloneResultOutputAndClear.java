@@ -70,6 +70,10 @@ public class StandaloneResultOutputAndClear extends XAFunction {
             logger.info("Total Operations: Duration: {} ThreadNum: {} Queries: {} TPS: {} Average: {}μs p50: {}μs p99: {}μs", elapsedTime, threadNum, numQueries, String.format("%.03f", throughput), average, p50, p99);
         }
 
+        logger.info("=============================================================");
+        logger.info("==========================End================================");
+        logger.info("=============================================================");
+
         return 0;
     }
 
