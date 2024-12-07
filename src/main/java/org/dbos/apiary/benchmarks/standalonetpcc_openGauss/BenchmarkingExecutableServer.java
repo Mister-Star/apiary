@@ -123,6 +123,7 @@ public class BenchmarkingExecutableServer {
         }
         catch (Exception e) {
             logger.info("Can not connect to Postgres {}", postgresAddress);
+            return;
         }
         apiaryWorker.registerConnection(XAConfig.postgres, conn);
         apiaryWorker.registerFunction("StandalonePaymentFunction", XAConfig.postgres, StandalonePaymentFunction::new);
