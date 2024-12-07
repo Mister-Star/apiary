@@ -227,16 +227,24 @@ public class openGaussConnection implements ApiaryConnection {
                     
                     try (ScopedTimer t4 = new ScopedTimer((long elapsed) -> ctxt.commitNanos.set(elapsed)) ) {
                         if (valid) {
-                            ctxt.conn.commit();
-                            for (String secondary : ctxt.secondaryWrittenKeys.keySet()) {
-                                Map<String, List<String>> writtenKeys = ctxt.secondaryWrittenKeys.get(secondary);
-                                ctxt.workerContext.getSecondaryConnection(secondary).commit(writtenKeys, ctxt.txc);
+                            try {
+                                ctxt.conn.commit();
+                                for (String secondary : ctxt.secondaryWrittenKeys.keySet()) {
+                                    Map<String, List<String>> writtenKeys = ctxt.secondaryWrittenKeys.get(secondary);
+                                    ctxt.workerContext.getSecondaryConnection(secondary).commit(writtenKeys, ctxt.txc);
+                                }
+                                activeTransactions.remove(ctxt.txc);
+
+                                succeededCtx = ctxt;
+                                long elapsedTime = (System.currentTimeMillis() - startTime);
+                                org.dbos.apiary.benchmarks.standalonetpcc_openGauss.BenchmarkingExecutableServer.transactionTimes.add(elapsedTime);
+                                logger.info("Txn execution total time {}", elapsedTime);
+
+                            } catch (Exception e) {
+                                long elapsedTime = (System.currentTimeMillis() - startTime);
+                                logger.info("Txn execution failed Txn type {}, total time {}", functionName, elapsedTime);
+                                rollback(ctxt);
                             }
-                            activeTransactions.remove(ctxt.txc);
-                            succeededCtx = ctxt;
-                            long elapsedTime = (System.currentTimeMillis() - startTime);
-                            org.dbos.apiary.benchmarks.standalonetpcc_openGauss.BenchmarkingExecutableServer.transactionTimes.add(elapsedTime);
-                            logger.info("Txn execution total time {}", elapsedTime);
                             break;
                         } else {
                             long elapsedTime = (System.currentTimeMillis() - startTime);
