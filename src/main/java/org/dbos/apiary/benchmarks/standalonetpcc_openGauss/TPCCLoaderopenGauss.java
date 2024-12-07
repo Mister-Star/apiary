@@ -36,7 +36,6 @@ package org.dbos.apiary.benchmarks.standalonetpcc_openGauss;
 
 import org.apache.log4j.Logger;
 import org.dbos.apiary.benchmarks.standalonetpcc_openGauss.pojo.*;
-import org.postgresql.ds.PGSimpleDataSource;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -52,7 +51,6 @@ public class TPCCLoaderopenGauss {
     private static final Logger LOG = Logger.getLogger(TPCCLoaderopenGauss.class);
 	private final WorkloadConfiguration conf;
 	private final Random rng = new Random();
-	PGSimpleDataSource PostgresSource;
 
 	Properties dbProps;
 	String database;
@@ -89,7 +87,7 @@ public class TPCCLoaderopenGauss {
 		return wid % 2 == 0? TPCCConstants.DBTYPE_MYSQL : TPCCConstants.DBTYPE_POSTGRES;
 	}
 
-    public List<LoaderThread> createLoaderThreads() throws SQLException {
+    public List<LoaderThread> createLoaderThreads() throws SQLException, ClassNotFoundException {
         List<LoaderThread> threads = new ArrayList<LoaderThread>();
         int numLoaders = 8;
         final CountDownLatch itemLatch = new CountDownLatch(numLoaders);
@@ -104,6 +102,7 @@ public class TPCCLoaderopenGauss {
             int numItemsPerLoader = TPCCConfig.configItemCount / numLoaders;
             int itemStartInclusive = i;
             int itemEndInclusive = Math.min(TPCCConfig.configItemCount, itemStartInclusive + numItemsPerLoader - 1);
+			Class.forName("org.opengauss.Driver");
 			Connection pgConn = DriverManager.getConnection(database, dbProps);
 			pgConn.setAutoCommit(false);
 			threads.add(new LoaderThread(pgConn, workloadConfiguration.getDBName()) {
@@ -124,6 +123,7 @@ public class TPCCLoaderopenGauss {
         for (int w = 1; w <= numWarehouses; w++) {
             final int w_id = w;
 			Connection rawConnection = null;
+			Class.forName("org.postgresql.Driver");
 			rawConnection = DriverManager.getConnection(database, dbProps);
 			rawConnection.setAutoCommit(false);
             threads.add(new LoaderThread(rawConnection, workloadConfiguration.getDBName()) {

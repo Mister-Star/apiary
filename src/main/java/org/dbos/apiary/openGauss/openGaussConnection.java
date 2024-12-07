@@ -9,9 +9,6 @@ import org.dbos.apiary.function.WorkerContext;
 import org.dbos.apiary.utilities.ApiaryConfig;
 import org.dbos.apiary.utilities.ScopedTimer;
 import org.dbos.apiary.utilities.Tracer;
-import org.postgresql.ds.common.BaseDataSource;
-import org.postgresql.util.PSQLException;
-import org.postgresql.util.PSQLState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,14 +50,14 @@ public class openGaussConnection implements ApiaryConnection {
      * @param databasePassword the Postgres database password.
      * @throws SQLException
      */
-    public openGaussConnection(String hostname, Integer port, String databaseName, String databaseUsername, String databasePassword) throws SQLException {
-        this.database = "jdbc:postgresql://" + hostname + ":" + port + "/" + databaseUsername;
+    public openGaussConnection(String hostname, Integer port, String databaseName, String databaseUsername, String databasePassword) throws SQLException, ClassNotFoundException {
+        this.database = "jdbc:opengauss://" + hostname + ":" + port + "/" + databaseUsername;
         logger.info("openGauss Connection {}", database);
         this.dbProps = new Properties();
         this.dbProps.setProperty("user", databaseUsername);
         this.dbProps.setProperty("password", databasePassword);
         this.dbProps.setProperty("conn", database);
-        this.dbProps.setProperty("driver", "org.postgresql.Driver");
+        this.dbProps.setProperty("driver", "org.opengauss.Driver");
         this.dbProps.setProperty("db", databaseName);
 
 //        this.ds = new BaseDataSource() {
@@ -72,6 +69,7 @@ public class openGaussConnection implements ApiaryConnection {
 
         this.connection = ThreadLocal.withInitial(() -> {
            try {
+               Class.forName("org.opengauss.Driver");
                Connection conn = DriverManager.getConnection(database, dbProps);
                conn.setAutoCommit(false);
                if (ApiaryConfig.isolationLevel == ApiaryConfig.REPEATABLE_READ) {
@@ -84,15 +82,20 @@ public class openGaussConnection implements ApiaryConnection {
                return conn;
            } catch (SQLException e) {
                e.printStackTrace();
+           } catch (ClassNotFoundException e) {
+               throw new RuntimeException(e);
            }
-           return null;
+            return null;
         });
         try {
+            Class.forName("org.opengauss.Driver");
             Connection testConn = DriverManager.getConnection(database, dbProps);
             testConn.close();
         } catch (SQLException e) {
-            logger.info("Failed to connect to Postgres");
+            logger.info("Failed to connect to opengauss");
             throw new RuntimeException("Failed to connect to Postgres");
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
         createTable(ProvenanceBuffer.PROV_FuncInvocations,
                 ProvenanceBuffer.PROV_APIARY_TRANSACTION_ID + " BIGINT NOT NULL, "
@@ -120,7 +123,8 @@ public class openGaussConnection implements ApiaryConnection {
      * @param tableName the table to drop.
      * @throws SQLException
      */
-    public void dropTable(String tableName) throws SQLException {
+    public void dropTable(String tableName) throws SQLException, ClassNotFoundException {
+        Class.forName("org.opengauss.Driver");
         Connection conn = DriverManager.getConnection(database, dbProps);
         Statement truncateTable = conn.createStatement();
         truncateTable.execute(String.format("DROP TABLE IF EXISTS %s;", tableName));
@@ -135,7 +139,8 @@ public class openGaussConnection implements ApiaryConnection {
      * @param specStr the schema of the table, in Postgres DDL.
      * @throws SQLException
      */
-    public void createTable(String tableName, String specStr) throws SQLException {
+    public void createTable(String tableName, String specStr) throws SQLException, ClassNotFoundException {
+        Class.forName("org.opengauss.Driver");
         Connection conn = DriverManager.getConnection(database, dbProps);
         Statement s = conn.createStatement();
         s.execute(String.format("CREATE TABLE IF NOT EXISTS %s (%s);", tableName, specStr));
@@ -160,7 +165,8 @@ public class openGaussConnection implements ApiaryConnection {
         conn.close();
     }
 
-    public void createIndex(String indexString) throws SQLException {
+    public void createIndex(String indexString) throws SQLException, ClassNotFoundException {
+        Class.forName("org.opengauss.Driver");
         Connection c = DriverManager.getConnection(database, dbProps);
         Statement s = c.createStatement();
         s.execute(indexString);
@@ -243,9 +249,9 @@ public class openGaussConnection implements ApiaryConnection {
                             InvocationTargetException i = (InvocationTargetException) innerException;
                             innerException = i.getCause();
                         }
-                        if (innerException instanceof PSQLException) {
-                            PSQLException p = (PSQLException) innerException;
-                            if (p.getSQLState().equals(PSQLState.SERIALIZATION_FAILURE.getState())) {
+                        if (innerException instanceof SQLException) {
+                            SQLException p = (SQLException) innerException;
+                            if (p.getSQLState().equals(40001)) { //SERIALIZATION_FAILURE
                                 try {
                                     rollback(ctxt);
                                     continue;
@@ -253,7 +259,7 @@ public class openGaussConnection implements ApiaryConnection {
                                     ex.printStackTrace();
                                 }
                             } else {
-                                logger.info("Unrecoverable Postgres error: {} {}", p.getMessage(), p.getSQLState());
+                                logger.info("Unrecoverable opengauss error: {} {}", p.getMessage(), p.getSQLState());
                             }
                         }
                     }

@@ -48,7 +48,7 @@ public class TPCCBenchmark {
         return ds;
     }
 
-    public static void benchmark(WorkloadConfiguration conf, String transactionManager, int threadNum, String mainHostAddr, Integer interval, Integer duration, int percentageNewOrder, boolean mysqlDelayLogFlush, boolean skipLoading, boolean skipBench) throws SQLException, InterruptedException, InvalidProtocolBufferException {
+    public static void benchmark(WorkloadConfiguration conf, String transactionManager, int threadNum, String mainHostAddr, Integer interval, Integer duration, int percentageNewOrder, boolean mysqlDelayLogFlush, boolean skipLoading, boolean skipBench) throws SQLException, InterruptedException, InvalidProtocolBufferException, ClassNotFoundException {
         logger.info("TPCC benchmark start");
         if (!skipLoading) {
             logger.info("start loading data");
@@ -57,8 +57,8 @@ public class TPCCBenchmark {
             dbProps.setProperty("db", conf.getDBName());
             dbProps.setProperty("user", conf.getDBUsername());
             dbProps.setProperty("password", conf.getDBPassword());
-            dbProps.setProperty("driver", "org.postgresql.Driver");
-            String database = "jdbc:postgresql://" + conf.getDBAddressPG() + ":" + conf.getPort() + "/" + conf.getDBUsername();
+            dbProps.setProperty("driver", "org.opengauss.Driver");
+            String database = "jdbc:opengauss://" + conf.getDBAddressPG() + ":" + conf.getPort() + "/" + conf.getDBUsername();
             dbProps.setProperty("conn", database);
             TPCCLoaderopenGauss loader = new TPCCLoaderopenGauss(conf, dbProps, database);
             List<LoaderThread> loaders = loader.createLoaderThreads();

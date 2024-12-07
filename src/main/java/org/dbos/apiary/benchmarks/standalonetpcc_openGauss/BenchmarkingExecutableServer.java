@@ -3,7 +3,6 @@ package org.dbos.apiary.benchmarks.standalonetpcc_openGauss;
 import org.dbos.apiary.benchmarks.standalonetpcc_openGauss.procedures.StandaloneNewOrderFunction;
 import org.dbos.apiary.benchmarks.standalonetpcc_openGauss.procedures.StandalonePaymentFunction;
 import org.dbos.apiary.openGauss.openGaussConnection;
-import org.dbos.apiary.postgres.PostgresConnection;
 import org.dbos.apiary.utilities.ApiaryConfig;
 import org.dbos.apiary.worker.ApiaryNaiveScheduler;
 import org.dbos.apiary.worker.ApiaryScheduler;

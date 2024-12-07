@@ -7,6 +7,12 @@
     <groupId>org.dbos.apiary</groupId>
     <artifactId>apiary</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+<!--    <packaging>pom</packaging>-->
+
+<!--    <modules>-->
+<!--        <module>src/main/java/org/dbos/apiary/benchmarks/standalonetpcc_openGauss</module>-->
+<!--        <module>src/main/java/org/dbos/apiary/openGauss</module>-->
+<!--    </modules>-->
 
     <build>
         <extensions>
@@ -236,11 +242,16 @@
         </dependency>
         <dependency>
             <groupId>org.opengauss</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>2.0.0</version> <!-- 使用适合的版本 -->
-            <scope>system</scope>
-            <systemPath>${project.basedir}/libs/postgresql.jar</systemPath>
+            <artifactId>opengauss-jdbc</artifactId>
+            <version>3.0.0</version> <!-- 使用适合的版本 -->
         </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.openGauss</groupId>-->
+<!--            <artifactId>postgresql</artifactId>-->
+<!--            <version>2.0.0</version> &lt;!&ndash; 使用适合的版本 &ndash;&gt;-->
+<!--            <scope>system</scope>-->
+<!--            <systemPath>${project.basedir}/libs/postgresql.jar</systemPath>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
