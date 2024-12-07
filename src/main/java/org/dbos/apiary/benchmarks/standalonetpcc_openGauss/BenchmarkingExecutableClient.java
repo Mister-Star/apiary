@@ -63,7 +63,7 @@ public class BenchmarkingExecutableClient {
         WorkloadConfiguration conf = new WorkloadConfiguration();
 
         conf.setBenchmarkName("TPCC");
-        conf.setDBName("TPCC");
+        conf.setDBName("tpcc");
         conf.setDBAddressPG(postgresAddr);
         conf.setPort(26000);
         conf.setDBUsername("jack");
