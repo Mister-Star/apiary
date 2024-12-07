@@ -32,6 +32,7 @@ public class ApiaryConfig {
     public static final String vertica = "vertica";
     public static final String mongo = "mongo";
     public static final String gcs = "gcs";
+    public static final String openGauss = "openGauss";
 
     // GCS bucket names.
     public static final String gcsTestBucket = "apiary_gcs_test";

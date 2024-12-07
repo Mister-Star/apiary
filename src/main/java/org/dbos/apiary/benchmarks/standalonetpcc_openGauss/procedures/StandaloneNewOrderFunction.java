@@ -18,7 +18,6 @@ package org.dbos.apiary.benchmarks.standalonetpcc_openGauss.procedures;
 
 import org.apache.log4j.Logger;
 import org.dbos.apiary.benchmarks.standalonetpcc_openGauss.*;
-import org.dbos.apiary.postgres.PostgresConnection;
 import org.dbos.apiary.utilities.Percentile;
 import org.dbos.apiary.xa.XAFunction;
 import org.slf4j.LoggerFactory;
@@ -30,7 +29,7 @@ import java.util.Random;
 
 public class StandaloneNewOrderFunction extends XAFunction {
     private static final Logger LOG = Logger.getLogger(StandaloneNewOrderFunction.class);
-	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(PostgresConnection.class);
+	private static final org.slf4j.Logger logger = LoggerFactory.getLogger(StandaloneNewOrderFunction.class);
     private static Random gen = new Random();
 	public static Percentile p1 = new Percentile(); 
 	public static Percentile p2 = new Percentile(); 
@@ -94,7 +93,7 @@ public class StandaloneNewOrderFunction extends XAFunction {
     " (__apiaryid__,OL_O_ID, OL_D_ID, OL_W_ID, OL_NUMBER, OL_I_ID, OL_SUPPLY_W_ID, OL_QUANTITY, OL_AMOUNT, OL_DIST_INFO) " +
     " VALUES (?,?,?,?,?,?,?,?,?,?)";
 
-	public static Map<String, Object> orderLineLogic(org.dbos.apiary.postgres.PostgresContext context, int ol_supply_w_id, int ol_i_id, int ol_quantity, int ol_number, int o_ol_cnt, int w_id, int d_id) throws Exception {
+	public static Map<String, Object> orderLineLogic(org.dbos.apiary.openGauss.openGaussContext context, int ol_supply_w_id, int ol_i_id, int ol_quantity, int ol_number, int o_ol_cnt, int w_id, int d_id) throws Exception {
 		Map<String, Object> resMap = new HashMap<>();
 		String ol_dist_info = new String();
 		// stmtGetItem.setInt(1, ol_i_id);
@@ -226,7 +225,7 @@ public class StandaloneNewOrderFunction extends XAFunction {
 		return resMap;
 	}
 
-    public static int runFunction(org.dbos.apiary.postgres.PostgresContext context, int terminalWarehouseID, int numWarehouses) throws Exception {
+    public static int runFunction(org.dbos.apiary.openGauss.openGaussContext context, int terminalWarehouseID, int numWarehouses) throws Exception {
         long t0 = System.nanoTime();
 
 		long startTime = System.currentTimeMillis();
@@ -422,8 +421,8 @@ public class StandaloneNewOrderFunction extends XAFunction {
 		}
 
 		long elapsedTime = (System.currentTimeMillis() - startTime);
-		BenchmarkingExecutableServer.newOrderTimes.add(elapsedTime);
-		logger.info("PaymentTxn execution time {}", elapsedTime);
+		org.dbos.apiary.benchmarks.standalonetpcc_openGauss.BenchmarkingExecutableServer.newOrderTimes.add(elapsedTime);
+		logger.info("NewOrder execution time {}", elapsedTime);
         return 0;
     }
 

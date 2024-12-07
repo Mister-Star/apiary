@@ -1,6 +1,6 @@
 package org.dbos.apiary.openGauss;
 
-import org.dbos.apiary.benchmarks.standalonetpcc.BenchmarkingExecutableServer;
+import org.dbos.apiary.benchmarks.standalonetpcc_openGauss.BenchmarkingExecutableServer;
 import org.dbos.apiary.connection.ApiaryConnection;
 import org.dbos.apiary.function.FunctionOutput;
 import org.dbos.apiary.function.ProvenanceBuffer;
@@ -139,14 +139,14 @@ public class openGaussConnection implements ApiaryConnection {
         s.execute(String.format("CREATE FOREIGN TABLE IF NOT EXISTS %s (%s);", tableName, specStr));
         if (!specStr.contains("APIARY_TRANSACTION_ID")) {
             ResultSet r = s.executeQuery(String.format("SELECT * FROM %s", tableName));
-            logger.info("createTable {}  {}", tableName, specStr);
+//            logger.info("createTable {}  {}", tableName, specStr);
             ResultSetMetaData rsmd = r.getMetaData();
             StringBuilder provTable = new StringBuilder(String.format(
                     "CREATE FOREIGN TABLE IF NOT EXISTS %sEvents (%s BIGINT NOT NULL, %s BIGINT NOT NULL, %s BIGINT NOT NULL, %s BIGINT NOT NULL",
                     tableName, ProvenanceBuffer.PROV_APIARY_TRANSACTION_ID,
                     ProvenanceBuffer.PROV_APIARY_TIMESTAMP, ProvenanceBuffer.PROV_APIARY_OPERATION_TYPE,
                     ProvenanceBuffer.PROV_QUERY_SEQNUM));
-            logger.info("openGauss 149 provTable {}", provTable.toString());
+//            logger.info("openGauss 149 provTable {}", provTable.toString());
             for (int i = 0; i < rsmd.getColumnCount(); i++) {
                 provTable.append(",");
                 provTable.append(rsmd.getColumnLabel(i + 1));
@@ -159,7 +159,7 @@ public class openGaussConnection implements ApiaryConnection {
                 }
             }
             provTable.append(");");
-            logger.info("openGauss 157 provTable {}", provTable.toString());
+//            logger.info("openGauss 157 provTable {}", provTable.toString());
             s.execute(provTable.toString());
         }
         s.close();
@@ -207,6 +207,7 @@ public class openGaussConnection implements ApiaryConnection {
                 activeTransactionsLock.readLock().unlock();
                 try {
                     try (ScopedTimer t2 = new ScopedTimer((long elapsed) -> ctxt.executionNanos.set(elapsed)) ) {
+//                        logger.info("openGauss callFunction functionName {} inputs {}", functionName, inputs.toString());
                         f = workerContext.getFunction(functionName).apiaryRunFunction(ctxt, inputs);
                     } catch (Exception e) {
                         throw e;
@@ -234,10 +235,12 @@ public class openGaussConnection implements ApiaryConnection {
                             activeTransactions.remove(ctxt.txc);
                             succeededCtx = ctxt;
                             long elapsedTime = (System.currentTimeMillis() - startTime);
-                            BenchmarkingExecutableServer.transactionTimes.add(elapsedTime);
+                            org.dbos.apiary.benchmarks.standalonetpcc_openGauss.BenchmarkingExecutableServer.transactionTimes.add(elapsedTime);
                             logger.info("Txn execution total time {}", elapsedTime);
                             break;
                         } else {
+                            long elapsedTime = (System.currentTimeMillis() - startTime);
+                            logger.info("Txn execution failed Txn type {}, total time {}", functionName, elapsedTime);
                             rollback(ctxt);
                         }
                     } catch (Exception e) {

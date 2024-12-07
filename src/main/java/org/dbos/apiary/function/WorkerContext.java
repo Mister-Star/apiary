@@ -30,6 +30,8 @@ public class WorkerContext {
             registerFunction(ApiaryConfig.getApiaryClientID, ApiaryConfig.postgres, GetApiaryClientID::new);
         } else if (type.equals(ApiaryConfig.voltdb)) {
             registerFunction(ApiaryConfig.getApiaryClientID, ApiaryConfig.voltdb, org.dbos.apiary.procedures.voltdb.GetApiaryClientID::new);
+        } else if (type.equals(ApiaryConfig.openGauss)) {
+            registerFunction(ApiaryConfig.getApiaryClientID, ApiaryConfig.openGauss, org.dbos.apiary.procedures.openGauss.GetApiaryClientID::new);
         }
     }
 

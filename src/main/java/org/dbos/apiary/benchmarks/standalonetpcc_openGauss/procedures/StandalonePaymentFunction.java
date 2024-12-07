@@ -20,7 +20,6 @@ import com.google.gson.Gson;
 import org.apache.log4j.Logger;
 import org.dbos.apiary.benchmarks.standalonetpcc_openGauss.*;
 import org.dbos.apiary.benchmarks.standalonetpcc_openGauss.pojo.Customer;
-import org.dbos.apiary.postgres.PostgresConnection;
 import org.dbos.apiary.xa.XAFunction;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +31,7 @@ import java.util.Random;
 
 public class StandalonePaymentFunction extends XAFunction {
     private static final Logger LOG = Logger.getLogger(StandalonePaymentFunction.class);
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(PostgresConnection.class);
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(StandalonePaymentFunction.class);
 
     private static Random gen = new Random();
 
@@ -121,7 +120,7 @@ public class StandalonePaymentFunction extends XAFunction {
 
 
 
-    public static String getCustomerByName(org.dbos.apiary.postgres.PostgresContext context, int c_w_id, int c_d_id, String customerLastName) throws Exception {
+    public static String getCustomerByName(org.dbos.apiary.openGauss.openGaussContext context, int c_w_id, int c_d_id, String customerLastName) throws Exception {
         ArrayList<Customer> customers = new ArrayList<Customer>();
 
         // customerByName.setInt(1, c_w_id);
@@ -155,7 +154,7 @@ public class StandalonePaymentFunction extends XAFunction {
         return gson.toJson(customers.get(index));
     }
 
-    public static String getCustomerById(org.dbos.apiary.postgres.PostgresContext context, int c_w_id, int c_d_id, int c_id) throws Exception {
+    public static String getCustomerById(org.dbos.apiary.openGauss.openGaussContext context, int c_w_id, int c_d_id, int c_id) throws Exception {
         ResultSet rs = context.executeQuery(payGetCustSQL_function, TPCCUtil.makeApiaryId(TPCCConstants.TABLENAME_CUSTOMER, c_w_id, c_d_id, c_id), c_w_id);
         if (!rs.next()) {
             throw new RuntimeException("C_ID=" + c_id + " C_D_ID=" + c_d_id + " C_W_ID=" + c_w_id + " not found!");
@@ -169,7 +168,7 @@ public class StandalonePaymentFunction extends XAFunction {
         return gson.toJson(c);
     }
 
-    public static int runFunction(org.dbos.apiary.postgres.PostgresContext context, int w_id, int numWarehouses) throws Exception {
+    public static int runFunction(org.dbos.apiary.openGauss.openGaussContext context, int w_id, int numWarehouses) throws Exception {
         // initializing all prepared statements
         // payUpdateWhse = this.getPreparedStatement(conn, payUpdateWhseSQL);
         // payGetWhse = this.getPreparedStatement(conn, payGetWhseSQL);
@@ -430,7 +429,7 @@ public class StandalonePaymentFunction extends XAFunction {
         }
 
         long elapsedTime = (System.currentTimeMillis() - startTime);
-        BenchmarkingExecutableServer.paymentTimes.add(elapsedTime);
+        org.dbos.apiary.benchmarks.standalonetpcc_openGauss.BenchmarkingExecutableServer.paymentTimes.add(elapsedTime);
         logger.info("PaymentTxn execution time {}", elapsedTime);
         return 0;
     }

@@ -205,7 +205,7 @@ public class ApiaryWorker {
                 logger.info("Unrecognized function: {}", name);
             }
             String type = workerContext.getFunctionType(name);
-            logger.info("function type {}, workerContext.getPrimaryConnectionType {}", type, workerContext.getPrimaryConnectionType());
+//            logger.info("function type {}, workerContext.getPrimaryConnectionType {}", type, workerContext.getPrimaryConnectionType());
             if (type.equals(ApiaryConfig.stateless)) {
                 ApiaryFunction function = workerContext.getFunction(name);
                 ApiaryStatelessContext context = new ApiaryStatelessContext(workerContext, service, execID, functionID, isReplay);
