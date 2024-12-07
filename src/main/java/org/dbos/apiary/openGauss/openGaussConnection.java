@@ -65,13 +65,13 @@ public class openGaussConnection implements ApiaryConnection {
                Class.forName("org.opengauss.Driver");
                Connection conn = DriverManager.getConnection(database, dbProps.getProperty("user"), dbProps.getProperty("password"));
                conn.setAutoCommit(false);
-//               if (ApiaryConfig.isolationLevel == ApiaryConfig.REPEATABLE_READ) {
-//                   conn.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
-//               } else if (ApiaryConfig.isolationLevel == ApiaryConfig.SERIALIZABLE) {
-//                   conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
-//               } else {
-//                   logger.info("Invalid isolation level: {}", ApiaryConfig.isolationLevel);
-//               }
+               if (ApiaryConfig.isolationLevel == ApiaryConfig.REPEATABLE_READ) {
+                   conn.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
+               } else if (ApiaryConfig.isolationLevel == ApiaryConfig.SERIALIZABLE) {
+                   conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+               } else {
+                   logger.info("Invalid isolation level: {}", ApiaryConfig.isolationLevel);
+               }
                return conn;
            } catch (SQLException e) {
                e.printStackTrace();
