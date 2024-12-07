@@ -52,7 +52,7 @@ public class openGaussConnection implements ApiaryConnection {
      */
     public openGaussConnection(String hostname, Integer port, String databaseName, String databaseUsername, String databasePassword) throws SQLException, ClassNotFoundException {
         this.database = "jdbc:opengauss://" + hostname + ":" + port + "/" + databaseName;
-        logger.info("openGauss Connection {}", database);
+        logger.info("openGaussConnection: openGauss Connection {}", database);
         this.dbProps = new Properties();
         this.dbProps.setProperty("user", databaseUsername);
         this.dbProps.setProperty("password", databasePassword);
@@ -60,25 +60,18 @@ public class openGaussConnection implements ApiaryConnection {
         this.dbProps.setProperty("driver", "org.opengauss.Driver");
         this.dbProps.setProperty("db", databaseName);
 
-//        this.ds = new BaseDataSource() {
-//            @Override
-//            public String getDescription() {
-//                return null;
-//            }
-//        }
-
         this.connection = ThreadLocal.withInitial(() -> {
            try {
                Class.forName("org.opengauss.Driver");
-               Connection conn = DriverManager.getConnection(database, dbProps);
+               Connection conn = DriverManager.getConnection(database, dbProps.getProperty("user"), dbProps.getProperty("password"));
                conn.setAutoCommit(false);
-               if (ApiaryConfig.isolationLevel == ApiaryConfig.REPEATABLE_READ) {
-                   conn.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
-               } else if (ApiaryConfig.isolationLevel == ApiaryConfig.SERIALIZABLE) {
-                   conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
-               } else {
-                   logger.info("Invalid isolation level: {}", ApiaryConfig.isolationLevel);
-               }
+//               if (ApiaryConfig.isolationLevel == ApiaryConfig.REPEATABLE_READ) {
+//                   conn.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
+//               } else if (ApiaryConfig.isolationLevel == ApiaryConfig.SERIALIZABLE) {
+//                   conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+//               } else {
+//                   logger.info("Invalid isolation level: {}", ApiaryConfig.isolationLevel);
+//               }
                return conn;
            } catch (SQLException e) {
                e.printStackTrace();
@@ -89,11 +82,11 @@ public class openGaussConnection implements ApiaryConnection {
         });
         try {
             Class.forName("org.opengauss.Driver");
-            Connection testConn = DriverManager.getConnection(database, dbProps);
+            Connection testConn = DriverManager.getConnection(database, dbProps.getProperty("user"), dbProps.getProperty("password"));
             testConn.close();
         } catch (SQLException e) {
             logger.info("Failed to connect to opengauss");
-            throw new RuntimeException("Failed to connect to Postgres");
+            throw new RuntimeException("openGaussConnection 89 Failed to connect to opengauss");
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -103,16 +96,16 @@ public class openGaussConnection implements ApiaryConnection {
                 + ProvenanceBuffer.PROV_EXECUTIONID + " BIGINT NOT NULL, "
                 + ProvenanceBuffer.PROV_FUNCID + " BIGINT NOT NULL, "
                 + ProvenanceBuffer.PROV_ISREPLAY + " SMALLINT NOT NULL, "
-                + ProvenanceBuffer.PROV_SERVICE + " VARCHAR(1024) NOT NULL, "
-                + ProvenanceBuffer.PROV_PROCEDURENAME + " VARCHAR(1024) NOT NULL");
+                + ProvenanceBuffer.PROV_SERVICE + " VARCHAR(1000) NOT NULL, "
+                + ProvenanceBuffer.PROV_PROCEDURENAME + " VARCHAR(1000) NOT NULL");
         createTable(ProvenanceBuffer.PROV_ApiaryMetadata,
                 "Key VARCHAR(1024) NOT NULL, Value Integer, PRIMARY KEY(key)");
         createTable(ProvenanceBuffer.PROV_QueryMetadata,
                 ProvenanceBuffer.PROV_APIARY_TRANSACTION_ID + " BIGINT NOT NULL, "
                 + ProvenanceBuffer.PROV_QUERY_SEQNUM + " BIGINT NOT NULL, "
-                + ProvenanceBuffer.PROV_QUERY_STRING + " VARCHAR(2048) NOT NULL, "
-                + ProvenanceBuffer.PROV_QUERY_TABLENAMES + " VARCHAR(1024) NOT NULL, "
-                + ProvenanceBuffer.PROV_QUERY_PROJECTION + " VARCHAR(1024) NOT NULL "
+                + ProvenanceBuffer.PROV_QUERY_STRING + " VARCHAR(1000) NOT NULL, "
+                + ProvenanceBuffer.PROV_QUERY_TABLENAMES + " VARCHAR(1000) NOT NULL, "
+                + ProvenanceBuffer.PROV_QUERY_PROJECTION + " VARCHAR(1000) NOT NULL "
         );
         // TODO: add back recorded outputs later for fault tolerance.
         // createTable("RecordedOutputs", "ExecID bigint, FunctionID bigint, StringOutput VARCHAR(1000), IntOutput integer, StringArrayOutput bytea, IntArrayOutput bytea, FutureOutput bigint, QueuedTasks bytea, PRIMARY KEY(ExecID, FunctionID)");
@@ -125,10 +118,10 @@ public class openGaussConnection implements ApiaryConnection {
      */
     public void dropTable(String tableName) throws SQLException, ClassNotFoundException {
         Class.forName("org.opengauss.Driver");
-        Connection conn = DriverManager.getConnection(database, dbProps);
+        Connection conn = DriverManager.getConnection(database, dbProps.getProperty("user"), dbProps.getProperty("password"));
         Statement truncateTable = conn.createStatement();
-        truncateTable.execute(String.format("DROP TABLE IF EXISTS %s;", tableName));
-        truncateTable.execute(String.format("DROP TABLE IF EXISTS %sEvents;", tableName));
+        truncateTable.execute(String.format("DROP FOREIGN TABLE IF EXISTS %s;", tableName));
+        truncateTable.execute(String.format("DROP FOREIGN TABLE IF EXISTS %sEvents;", tableName));
         truncateTable.close();
         conn.close();
     }
@@ -141,24 +134,32 @@ public class openGaussConnection implements ApiaryConnection {
      */
     public void createTable(String tableName, String specStr) throws SQLException, ClassNotFoundException {
         Class.forName("org.opengauss.Driver");
-        Connection conn = DriverManager.getConnection(database, dbProps);
+        Connection conn = DriverManager.getConnection(database, dbProps.getProperty("user"), dbProps.getProperty("password"));
         Statement s = conn.createStatement();
-        s.execute(String.format("CREATE TABLE IF NOT EXISTS %s (%s);", tableName, specStr));
+        s.execute(String.format("CREATE FOREIGN TABLE IF NOT EXISTS %s (%s);", tableName, specStr));
         if (!specStr.contains("APIARY_TRANSACTION_ID")) {
             ResultSet r = s.executeQuery(String.format("SELECT * FROM %s", tableName));
+            logger.info("createTable {}  {}", tableName, specStr);
             ResultSetMetaData rsmd = r.getMetaData();
             StringBuilder provTable = new StringBuilder(String.format(
                     "CREATE FOREIGN TABLE IF NOT EXISTS %sEvents (%s BIGINT NOT NULL, %s BIGINT NOT NULL, %s BIGINT NOT NULL, %s BIGINT NOT NULL",
                     tableName, ProvenanceBuffer.PROV_APIARY_TRANSACTION_ID,
                     ProvenanceBuffer.PROV_APIARY_TIMESTAMP, ProvenanceBuffer.PROV_APIARY_OPERATION_TYPE,
                     ProvenanceBuffer.PROV_QUERY_SEQNUM));
+            logger.info("openGauss 149 provTable {}", provTable.toString());
             for (int i = 0; i < rsmd.getColumnCount(); i++) {
                 provTable.append(",");
                 provTable.append(rsmd.getColumnLabel(i + 1));
                 provTable.append(" ");
-                provTable.append(rsmd.getColumnTypeName(i + 1));
+                if(rsmd.getColumnTypeName(i + 1).equals("varchar")) {
+                    provTable.append("varchar(1000)");
+                }
+                else {
+                    provTable.append(rsmd.getColumnTypeName(i + 1));
+                }
             }
             provTable.append(");");
+            logger.info("openGauss 157 provTable {}", provTable.toString());
             s.execute(provTable.toString());
         }
         s.close();
@@ -167,7 +168,7 @@ public class openGaussConnection implements ApiaryConnection {
 
     public void createIndex(String indexString) throws SQLException, ClassNotFoundException {
         Class.forName("org.opengauss.Driver");
-        Connection c = DriverManager.getConnection(database, dbProps);
+        Connection c = DriverManager.getConnection(database, dbProps.getProperty("user"), dbProps.getProperty("password"));
         Statement s = c.createStatement();
         s.execute(indexString);
         s.close();

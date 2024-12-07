@@ -126,8 +126,10 @@ public class BenchmarkingExecutableServer {
             Class.forName("org.opengauss.Driver");
 //            Connection pgConn = DriverManager.getConnection(db);
             Connection pgConn = DriverManager.getConnection("jdbc:opengauss://39.98.112.16:26000/tpcc", conf.getDBUsername(), conf.getDBPassword());
+            pgConn.close();
+            logger.info("Connection test to openGauss {} success!", postgresAddress);
         } catch (Exception e) {
-            logger.info("Can not connect to Postgres {}", postgresAddress);
+            logger.info("Connection test: Can not connect to openGauss {}", postgresAddress);
             return;
         }
 
@@ -135,7 +137,9 @@ public class BenchmarkingExecutableServer {
              conn = new openGaussConnection(conf.getDBAddressPG(), conf.getPort(), conf.getDBName(), conf.getDBUsername(), conf.getDBPassword());
         }
         catch (Exception e) {
-            logger.info("Can not connect to Postgres {}", postgresAddress);
+            logger.info("Can not connect to openGauss {}", postgresAddress);
+
+            logger.error(String.valueOf(e));
             return;
         }
         apiaryWorker.registerConnection(XAConfig.postgres, conn);

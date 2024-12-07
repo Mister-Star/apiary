@@ -103,7 +103,7 @@ public class TPCCLoaderopenGauss {
             int itemStartInclusive = i;
             int itemEndInclusive = Math.min(TPCCConfig.configItemCount, itemStartInclusive + numItemsPerLoader - 1);
 			Class.forName("org.opengauss.Driver");
-			Connection pgConn = DriverManager.getConnection(database, dbProps);
+			Connection pgConn = DriverManager.getConnection(database, dbProps.getProperty("user"), dbProps.getProperty("password"));
 			pgConn.setAutoCommit(false);
 			threads.add(new LoaderThread(pgConn, workloadConfiguration.getDBName()) {
                 @Override
@@ -124,7 +124,7 @@ public class TPCCLoaderopenGauss {
             final int w_id = w;
 			Connection rawConnection = null;
 			Class.forName("org.postgresql.Driver");
-			rawConnection = DriverManager.getConnection(database, dbProps);
+			rawConnection = DriverManager.getConnection(database, dbProps.getProperty("user"), dbProps.getProperty("password"));
 			rawConnection.setAutoCommit(false);
             threads.add(new LoaderThread(rawConnection, workloadConfiguration.getDBName()) {
                 @Override
