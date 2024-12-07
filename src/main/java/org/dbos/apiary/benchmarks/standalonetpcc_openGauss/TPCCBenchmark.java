@@ -77,9 +77,10 @@ public class TPCCBenchmark {
             return;
         }
 
-        openGaussConnection pconn;
         try {
-            pconn = new openGaussConnection(conf.getDBAddressPG(), XAConfig.postgresPort, conf.getDBName(), "postgres", "dbos");
+            openGaussConnection pconn;
+            pconn = new openGaussConnection(conf.getDBAddressPG(), conf.getPort(), conf.getDBName(), conf.getDBUsername(), conf.getDBPassword());
+            pconn.connection.get().close();
         } catch (Exception e) {
             logger.info("No MySQL/Postgres instance! {}", e.getMessage());
             return;
