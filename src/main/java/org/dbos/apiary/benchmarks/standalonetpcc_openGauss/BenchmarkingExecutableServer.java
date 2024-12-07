@@ -142,9 +142,9 @@ public class BenchmarkingExecutableServer {
             logger.error(String.valueOf(e));
             return;
         }
-        apiaryWorker.registerConnection(XAConfig.postgres, conn);
-        apiaryWorker.registerFunction("StandalonePaymentFunction", XAConfig.postgres, StandalonePaymentFunction::new);
-        apiaryWorker.registerFunction("StandaloneNewOrderFunction", XAConfig.postgres, StandaloneNewOrderFunction::new);
+        apiaryWorker.registerConnection(XAConfig.openGauss, conn);
+        apiaryWorker.registerFunction("StandalonePaymentFunction", XAConfig.openGauss, StandalonePaymentFunction::new);
+        apiaryWorker.registerFunction("StandaloneNewOrderFunction", XAConfig.openGauss, StandaloneNewOrderFunction::new);
 
         apiaryWorker.startServing();
 
