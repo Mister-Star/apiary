@@ -58,7 +58,7 @@ public class TPCCBenchmark {
             dbProps.setProperty("user", conf.getDBUsername());
             dbProps.setProperty("password", conf.getDBPassword());
             dbProps.setProperty("driver", "org.opengauss.Driver");
-            String database = "jdbc:opengauss://" + conf.getDBAddressPG() + ":" + conf.getPort() + "/" + conf.getDBUsername();
+            String database = "jdbc:opengauss://" + conf.getDBAddressPG() + ":" + conf.getPort() + "/" + conf.getDBName();
             dbProps.setProperty("conn", database);
             TPCCLoaderopenGauss loader = new TPCCLoaderopenGauss(conf, dbProps, database);
             List<LoaderThread> loaders = loader.createLoaderThreads();

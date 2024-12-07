@@ -51,7 +51,7 @@ public class openGaussConnection implements ApiaryConnection {
      * @throws SQLException
      */
     public openGaussConnection(String hostname, Integer port, String databaseName, String databaseUsername, String databasePassword) throws SQLException, ClassNotFoundException {
-        this.database = "jdbc:opengauss://" + hostname + ":" + port + "/" + databaseUsername;
+        this.database = "jdbc:opengauss://" + hostname + ":" + port + "/" + databaseName;
         logger.info("openGauss Connection {}", database);
         this.dbProps = new Properties();
         this.dbProps.setProperty("user", databaseUsername);
