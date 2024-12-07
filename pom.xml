@@ -102,6 +102,37 @@
                         </configuration>
                     </execution>
                     <execution>
+                        <id>TPCCClient-openGauss-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <archive>
+                                <manifest>
+                                    <mainClass>org.dbos.apiary.benchmarks.standalonetpcc_openGauss.BenchmarkingExecutableClient</mainClass>
+                                </manifest>
+                            </archive>
+                            <finalName>standalonetpcc-openGauss-client</finalName>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>TPCCServer-openGauss-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <archive>
+                                <manifest>
+                                    <mainClass>org.dbos.apiary.benchmarks.standalonetpcc_openGauss.BenchmarkingExecutableServer</mainClass>
+                                </manifest>
+                            </archive>
+                            <finalName>standalonetpcc-openGauss-server</finalName>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>TPCCClient-assembly</id>
                         <phase>package</phase>
                         <goals>
@@ -116,6 +147,7 @@
                             <finalName>standalonetpcc-client</finalName>
                         </configuration>
                     </execution>
+
                     <execution>
                         <id>worker-assembly</id>
                         <phase>package</phase>
@@ -202,13 +234,13 @@
 <!--            <scope>system</scope>-->
 <!--            <systemPath>${project.basedir}/libs/postgresql.jar</systemPath>-->
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.opengauss</groupId>-->
-<!--            <artifactId>postgresql</artifactId>-->
-<!--            <version>2.0.0</version> &lt;!&ndash; 使用适合的版本 &ndash;&gt;-->
-<!--            <scope>system</scope>-->
-<!--            <systemPath>${project.basedir}/libs/postgresql.jar</systemPath>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>org.opengauss</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>2.0.0</version> <!-- 使用适合的版本 -->
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/postgresql.jar</systemPath>
+        </dependency>
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
@@ -299,5 +331,10 @@
             <version>2.9.1</version>
         </dependency>
     </dependencies>
+
+    <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+    </properties>
 
 </project>
