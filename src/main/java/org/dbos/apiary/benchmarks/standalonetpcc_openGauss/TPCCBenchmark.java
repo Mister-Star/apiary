@@ -2,6 +2,7 @@ package org.dbos.apiary.benchmarks.standalonetpcc_openGauss;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import org.dbos.apiary.client.ApiaryWorkerClient;
+import org.dbos.apiary.openGauss.openGaussConnection;
 import org.dbos.apiary.postgres.PostgresConnection;
 import org.dbos.apiary.utilities.Percentile;
 import org.dbos.apiary.xa.XAConfig;
@@ -76,9 +77,9 @@ public class TPCCBenchmark {
             return;
         }
 
-        PostgresConnection pconn;
+        openGaussConnection pconn;
         try {
-            pconn = new PostgresConnection(conf.getDBAddressPG(), XAConfig.postgresPort, conf.getDBName(), "postgres", "dbos");
+            pconn = new openGaussConnection(conf.getDBAddressPG(), XAConfig.postgresPort, conf.getDBName(), "postgres", "dbos");
         } catch (Exception e) {
             logger.info("No MySQL/Postgres instance! {}", e.getMessage());
             return;

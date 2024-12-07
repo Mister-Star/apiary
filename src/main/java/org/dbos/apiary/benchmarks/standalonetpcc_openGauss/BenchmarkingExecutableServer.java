@@ -156,7 +156,7 @@ public class BenchmarkingExecutableServer {
                 throw new RuntimeException(e);
             }
             System.err.println("Stopping Apiary worker server.");
-        apiaryWorker.shutdown();
+            apiaryWorker.shutdown();
         }));
         Thread.sleep(Long.MAX_VALUE);
         apiaryWorker.shutdown();
