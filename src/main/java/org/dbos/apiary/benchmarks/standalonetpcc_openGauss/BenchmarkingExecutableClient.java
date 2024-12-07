@@ -67,7 +67,7 @@ public class BenchmarkingExecutableClient {
         conf.setDBAddressPG(postgresAddr);
         conf.setPort(26000);
         conf.setDBUsername("jack");
-        conf.setDBPassword("Test@123");
+        conf.setDBPassword("Test123.");
 
         boolean mysqlDelayLogFlush = false;
         boolean skipLoading = false;

@@ -12,6 +12,8 @@ import org.dbos.apiary.xa.XAConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -115,9 +117,20 @@ public class BenchmarkingExecutableServer {
         conf.setDBAddressPG(postgresAddress);
         conf.setPort(26000);
         conf.setDBUsername("jack");
-        conf.setDBPassword("Test@123");
+        conf.setDBPassword("Test123.");
 
         openGaussConnection conn = null;
+        try{
+            logger.info("Connection test to openGauss {}", postgresAddress);
+            String db = "jdbc:opengauss://39.98.112.16:26000/tpcc";
+            Class.forName("org.opengauss.Driver");
+//            Connection pgConn = DriverManager.getConnection(db);
+            Connection pgConn = DriverManager.getConnection("jdbc:opengauss://39.98.112.16:26000/tpcc", conf.getDBUsername(), conf.getDBPassword());
+        } catch (Exception e) {
+            logger.info("Can not connect to Postgres {}", postgresAddress);
+            return;
+        }
+
         try {
              conn = new openGaussConnection(conf.getDBAddressPG(), conf.getPort(), conf.getDBName(), conf.getDBUsername(), conf.getDBPassword());
         }
